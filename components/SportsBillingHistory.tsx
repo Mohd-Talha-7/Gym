@@ -10,7 +10,7 @@ export default function SportsBillingHistory() {
                         <span className="material-symbols-outlined text-3xl">history</span>
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight text-on-surface">Sports Billing History</h2>
+                        <h2 className="text-2xl font-bold tracking-tight text-on-surface">Sports Billing Histor</h2>
                         <nav className="flex text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest mt-1">
                             <span>Gym Operations</span>
                             <span className="mx-2">/</span>
