@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
     useGetSettings,
     useUpdateSettings,
+    getGetSettingsQueryKey,
 } from '@workspace/api-client-react';
 
 const THEMES = [
@@ -13,8 +15,11 @@ const THEMES = [
 ];
 
 export default function SettingsPanel({ tab }: { tab: string }) {
+    const qc = useQueryClient();
     const { data: settings, isLoading } = useGetSettings();
-    const update = useUpdateSettings();
+    const update = useUpdateSettings({
+        mutation: { onSuccess: () => qc.invalidateQueries({ queryKey: getGetSettingsQueryKey() }) },
+    });
 
     const [form, setForm] = useState({
         gymName: '', address: '', phone: '', email: '', gst: '',
