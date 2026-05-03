@@ -9,6 +9,8 @@ import attendanceRouter from "./attendance";
 import billsRouter from "./bills";
 import posRouter from "./pos";
 import sportsRouter from "./sports";
+import trainersRouter from "./trainers";
+import classesRouter from "./classes";
 import settingsRouter from "./settings";
 
 const router: IRouter = Router();
@@ -23,6 +25,8 @@ router.use(attendanceRouter);
 router.use(billsRouter);
 router.use(posRouter);
 router.use(sportsRouter);
+router.use(trainersRouter);
+router.use(classesRouter);
 router.use(settingsRouter);
 
 export default router;

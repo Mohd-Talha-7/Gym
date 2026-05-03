@@ -843,3 +843,157 @@ export const UpdateSettingsResponse = zod.object({
   currency: zod.string(),
   logoUrl: zod.string(),
 });
+
+export const ListTrainersResponseItem = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  specialty: zod.string(),
+  experienceYears: zod.number(),
+  hourlyRate: zod.number(),
+  status: zod.string(),
+  avatarUrl: zod.string(),
+  bio: zod.string().nullish(),
+});
+export const ListTrainersResponse = zod.array(ListTrainersResponseItem);
+
+export const CreateTrainerBody = zod.object({
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  specialty: zod.string(),
+  experienceYears: zod.number().nullish(),
+  hourlyRate: zod.number().nullish(),
+  status: zod.string().nullish(),
+  avatarUrl: zod.string().nullish(),
+  bio: zod.string().nullish(),
+});
+
+export const UpdateTrainerParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateTrainerBody = zod.object({
+  name: zod.string().nullish(),
+  phone: zod.string().nullish(),
+  email: zod.string().nullish(),
+  specialty: zod.string().nullish(),
+  experienceYears: zod.number().nullish(),
+  hourlyRate: zod.number().nullish(),
+  status: zod.string().nullish(),
+  avatarUrl: zod.string().nullish(),
+  bio: zod.string().nullish(),
+});
+
+export const UpdateTrainerResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  specialty: zod.string(),
+  experienceYears: zod.number(),
+  hourlyRate: zod.number(),
+  status: zod.string(),
+  avatarUrl: zod.string(),
+  bio: zod.string().nullish(),
+});
+
+export const DeleteTrainerParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListGroupClassesResponseItem = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  category: zod.string(),
+  trainer: zod.string(),
+  capacity: zod.number(),
+  durationMins: zod.number(),
+  scheduledAt: zod.coerce.date(),
+  room: zod.string(),
+  status: zod.string(),
+  bookedCount: zod.number(),
+});
+export const ListGroupClassesResponse = zod.array(ListGroupClassesResponseItem);
+
+export const CreateGroupClassBody = zod.object({
+  name: zod.string(),
+  category: zod.string().nullish(),
+  trainer: zod.string(),
+  capacity: zod.number().nullish(),
+  durationMins: zod.number().nullish(),
+  scheduledAt: zod.coerce.date(),
+  room: zod.string().nullish(),
+  status: zod.string().nullish(),
+});
+
+export const UpdateGroupClassParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateGroupClassBody = zod.object({
+  name: zod.string().nullish(),
+  category: zod.string().nullish(),
+  trainer: zod.string().nullish(),
+  capacity: zod.number().nullish(),
+  durationMins: zod.number().nullish(),
+  scheduledAt: zod.coerce.date().nullish(),
+  room: zod.string().nullish(),
+  status: zod.string().nullish(),
+});
+
+export const UpdateGroupClassResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  category: zod.string(),
+  trainer: zod.string(),
+  capacity: zod.number(),
+  durationMins: zod.number(),
+  scheduledAt: zod.coerce.date(),
+  room: zod.string(),
+  status: zod.string(),
+  bookedCount: zod.number(),
+});
+
+export const DeleteGroupClassParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListGroupClassBookingsParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListGroupClassBookingsResponseItem = zod.object({
+  id: zod.string(),
+  classId: zod.string(),
+  memberId: zod.string(),
+  memberName: zod.string(),
+  status: zod.string(),
+  bookedAt: zod.coerce.date(),
+});
+export const ListGroupClassBookingsResponse = zod.array(
+  ListGroupClassBookingsResponseItem,
+);
+
+export const BookGroupClassParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const BookGroupClassBody = zod.object({
+  memberId: zod.string(),
+});
+
+export const CheckOutAttendanceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const CheckOutAttendanceResponse = zod.object({
+  id: zod.string(),
+  memberId: zod.string(),
+  memberName: zod.string(),
+  memberAvatar: zod.string().nullish(),
+  checkIn: zod.coerce.date(),
+  checkOut: zod.coerce.date().nullish(),
+  source: zod.string(),
+});

@@ -50,4 +50,25 @@ router.post("/attendance", async (req, res): Promise<void> => {
   });
 });
 
+router.patch("/attendance/:id/check-out", async (req, res): Promise<void> => {
+  const [row] = await db
+    .update(attendanceTable)
+    .set({ checkOut: new Date() })
+    .where(eq(attendanceTable.id, req.params.id))
+    .returning();
+  if (!row) {
+    res.status(404).json({ error: "Attendance record not found" });
+    return;
+  }
+  const [member] = await db
+    .select()
+    .from(membersTable)
+    .where(eq(membersTable.id, row.memberId));
+  res.json({
+    ...row,
+    memberName: member?.name ?? "Unknown",
+    memberAvatar: member?.avatarUrl ?? null,
+  });
+});
+
 export default router;

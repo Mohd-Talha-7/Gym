@@ -192,6 +192,42 @@ export const scheduleTable = pgTable("schedule", {
   avatarUrl: text("avatar_url").notNull().default(""),
 });
 
+export const trainersTable = pgTable("trainers", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email"),
+  specialty: text("specialty").notNull().default("General Fitness"),
+  experienceYears: integer("experience_years").notNull().default(0),
+  hourlyRate: integer("hourly_rate").notNull().default(0),
+  status: text("status").notNull().default("active"),
+  avatarUrl: text("avatar_url").notNull().default(""),
+  bio: text("bio"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const groupClassesTable = pgTable("group_classes", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  category: text("category").notNull().default("Strength"),
+  trainer: text("trainer").notNull(),
+  capacity: integer("capacity").notNull().default(20),
+  durationMins: integer("duration_mins").notNull().default(60),
+  scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
+  room: text("room").notNull().default("Main Floor"),
+  status: text("status").notNull().default("scheduled"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const groupClassBookingsTable = pgTable("group_class_bookings", {
+  id: text("id").primaryKey(),
+  classId: text("class_id").notNull(),
+  memberId: text("member_id").notNull(),
+  memberName: text("member_name").notNull(),
+  status: text("status").notNull().default("booked"),
+  bookedAt: timestamp("booked_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const settingsTable = pgTable("settings", {
   id: text("id").primaryKey(),
   gymName: text("gym_name").notNull().default("FitCore Pro Gym"),

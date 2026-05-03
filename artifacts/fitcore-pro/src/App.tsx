@@ -16,6 +16,8 @@ import ClientProfile from '@/components/ClientProfile';
 import BirthdaysAnniversaries from '@/components/BirthdaysAnniversaries';
 import GroupClassBill from '@/components/GroupClassBill';
 import POSPortal from '@/components/POSPortal';
+import TrainersPanel from '@/components/TrainersPanel';
+import GroupClassesPanel from '@/components/GroupClassesPanel';
 import SportsBill from '@/components/SportsBill';
 import SportsBillingHistory from '@/components/SportsBillingHistory';
 import SportsClients from '@/components/SportsClients';
@@ -215,12 +217,12 @@ function Dashboard() {
               </h4>
               <ul className="space-y-0.5">
                 {[
-                  { name: 'Employees', icon: Contact },
-                  { name: 'Trainers', icon: GraduationCap },
-                  { name: 'Roles & Permissions', icon: Shield },
+                  { name: 'Employees', icon: Contact, id: null },
+                  { name: 'Trainers', icon: GraduationCap, id: 'trainers' },
+                  { name: 'Roles & Permissions', icon: Shield, id: null },
                 ].map((item) => (
                   <li key={item.name}>
-                    <a className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-theme-text-muted hover:bg-theme-bg-main hover:text-theme-text-main rounded-lg ml-[3px] transition-colors" href="#" onClick={(e) => e.preventDefault()}>
+                    <a className={`flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors ${item.id && activeTab === item.id ? 'bg-theme-sidebar-active-bg text-theme-sidebar-active-text border-l-[3px] border-theme-primary-main rounded-r-lg' : 'text-theme-text-muted hover:bg-theme-bg-main hover:text-theme-text-main rounded-lg ml-[3px]'}`} href="#" onClick={(e) => { e.preventDefault(); if (item.id) setActiveTab(item.id); }}>
                       <item.icon className="w-4 h-4" />
                       {item.name}
                     </a>
@@ -598,6 +600,10 @@ function Dashboard() {
               <MarkAttendance />
             ) : activeTab === 'attendance-report' ? (
               <AttendanceReport />
+            ) : activeTab === 'trainers' ? (
+              <TrainersPanel />
+            ) : activeTab === 'group-classes' ? (
+              <GroupClassesPanel />
             ) : (
               <div className="mt-4 max-w-7xl mx-auto w-full">
                   <div className="mb-8">

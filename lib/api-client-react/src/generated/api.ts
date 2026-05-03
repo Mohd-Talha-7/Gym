@@ -21,11 +21,13 @@ import type {
   AttendanceRecord,
   Bill,
   BodyAnalysis,
+  BookGroupClassInput,
   Celebration,
   CollectionProgress,
   CreateBillInput,
   CreateBodyAnalysisInput,
   CreateFollowUpInput,
+  CreateGroupClassInput,
   CreateInquiryInput,
   CreateMemberDocumentInput,
   CreateMemberInput,
@@ -35,9 +37,12 @@ import type {
   CreatePosSaleInput,
   CreateSportsClientInput,
   CreateSportsPackageInput,
+  CreateTrainerInput,
   CreateWorkoutPlanInput,
   DashboardStats,
   FollowUp,
+  GroupClass,
+  GroupClassBooking,
   HealthStatus,
   Inquiry,
   MarkAttendanceInput,
@@ -55,12 +60,15 @@ import type {
   SportsClient,
   SportsPackage,
   SportsReport,
+  Trainer,
   UpdateBillInput,
   UpdateFollowUpInput,
+  UpdateGroupClassInput,
   UpdateInquiryInput,
   UpdateMemberInput,
   UpdatePosProductInput,
   UpdateSettingsInput,
+  UpdateTrainerInput,
   WorkoutPlan,
 } from "./api.schemas";
 
@@ -4151,4 +4159,858 @@ export const useUpdateSettings = <
   TContext
 > => {
   return useMutation(getUpdateSettingsMutationOptions(options));
+};
+
+export const getListTrainersUrl = () => {
+  return `/api/trainers`;
+};
+
+export const listTrainers = async (
+  options?: RequestInit,
+): Promise<Trainer[]> => {
+  return customFetch<Trainer[]>(getListTrainersUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListTrainersQueryKey = () => {
+  return [`/api/trainers`] as const;
+};
+
+export const getListTrainersQueryOptions = <
+  TData = Awaited<ReturnType<typeof listTrainers>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listTrainers>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListTrainersQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listTrainers>>> = ({
+    signal,
+  }) => listTrainers({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listTrainers>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListTrainersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listTrainers>>
+>;
+export type ListTrainersQueryError = ErrorType<unknown>;
+
+export function useListTrainers<
+  TData = Awaited<ReturnType<typeof listTrainers>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listTrainers>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListTrainersQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+export const getCreateTrainerUrl = () => {
+  return `/api/trainers`;
+};
+
+export const createTrainer = async (
+  createTrainerInput: CreateTrainerInput,
+  options?: RequestInit,
+): Promise<Trainer> => {
+  return customFetch<Trainer>(getCreateTrainerUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createTrainerInput),
+  });
+};
+
+export const getCreateTrainerMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createTrainer>>,
+    TError,
+    { data: BodyType<CreateTrainerInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createTrainer>>,
+  TError,
+  { data: BodyType<CreateTrainerInput> },
+  TContext
+> => {
+  const mutationKey = ["createTrainer"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createTrainer>>,
+    { data: BodyType<CreateTrainerInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createTrainer(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateTrainerMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createTrainer>>
+>;
+export type CreateTrainerMutationBody = BodyType<CreateTrainerInput>;
+export type CreateTrainerMutationError = ErrorType<unknown>;
+
+export const useCreateTrainer = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createTrainer>>,
+    TError,
+    { data: BodyType<CreateTrainerInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createTrainer>>,
+  TError,
+  { data: BodyType<CreateTrainerInput> },
+  TContext
+> => {
+  return useMutation(getCreateTrainerMutationOptions(options));
+};
+
+export const getUpdateTrainerUrl = (id: string) => {
+  return `/api/trainers/${id}`;
+};
+
+export const updateTrainer = async (
+  id: string,
+  updateTrainerInput: UpdateTrainerInput,
+  options?: RequestInit,
+): Promise<Trainer> => {
+  return customFetch<Trainer>(getUpdateTrainerUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateTrainerInput),
+  });
+};
+
+export const getUpdateTrainerMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateTrainer>>,
+    TError,
+    { id: string; data: BodyType<UpdateTrainerInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateTrainer>>,
+  TError,
+  { id: string; data: BodyType<UpdateTrainerInput> },
+  TContext
+> => {
+  const mutationKey = ["updateTrainer"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateTrainer>>,
+    { id: string; data: BodyType<UpdateTrainerInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateTrainer(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateTrainerMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateTrainer>>
+>;
+export type UpdateTrainerMutationBody = BodyType<UpdateTrainerInput>;
+export type UpdateTrainerMutationError = ErrorType<unknown>;
+
+export const useUpdateTrainer = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateTrainer>>,
+    TError,
+    { id: string; data: BodyType<UpdateTrainerInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateTrainer>>,
+  TError,
+  { id: string; data: BodyType<UpdateTrainerInput> },
+  TContext
+> => {
+  return useMutation(getUpdateTrainerMutationOptions(options));
+};
+
+export const getDeleteTrainerUrl = (id: string) => {
+  return `/api/trainers/${id}`;
+};
+
+export const deleteTrainer = async (
+  id: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteTrainerUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteTrainerMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteTrainer>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteTrainer>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteTrainer"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteTrainer>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteTrainer(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteTrainerMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteTrainer>>
+>;
+
+export type DeleteTrainerMutationError = ErrorType<unknown>;
+
+export const useDeleteTrainer = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteTrainer>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteTrainer>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteTrainerMutationOptions(options));
+};
+
+export const getListGroupClassesUrl = () => {
+  return `/api/group-classes`;
+};
+
+export const listGroupClasses = async (
+  options?: RequestInit,
+): Promise<GroupClass[]> => {
+  return customFetch<GroupClass[]>(getListGroupClassesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListGroupClassesQueryKey = () => {
+  return [`/api/group-classes`] as const;
+};
+
+export const getListGroupClassesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listGroupClasses>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listGroupClasses>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListGroupClassesQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listGroupClasses>>
+  > = ({ signal }) => listGroupClasses({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listGroupClasses>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListGroupClassesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listGroupClasses>>
+>;
+export type ListGroupClassesQueryError = ErrorType<unknown>;
+
+export function useListGroupClasses<
+  TData = Awaited<ReturnType<typeof listGroupClasses>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listGroupClasses>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListGroupClassesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+export const getCreateGroupClassUrl = () => {
+  return `/api/group-classes`;
+};
+
+export const createGroupClass = async (
+  createGroupClassInput: CreateGroupClassInput,
+  options?: RequestInit,
+): Promise<GroupClass> => {
+  return customFetch<GroupClass>(getCreateGroupClassUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createGroupClassInput),
+  });
+};
+
+export const getCreateGroupClassMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createGroupClass>>,
+    TError,
+    { data: BodyType<CreateGroupClassInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createGroupClass>>,
+  TError,
+  { data: BodyType<CreateGroupClassInput> },
+  TContext
+> => {
+  const mutationKey = ["createGroupClass"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createGroupClass>>,
+    { data: BodyType<CreateGroupClassInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createGroupClass(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateGroupClassMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createGroupClass>>
+>;
+export type CreateGroupClassMutationBody = BodyType<CreateGroupClassInput>;
+export type CreateGroupClassMutationError = ErrorType<unknown>;
+
+export const useCreateGroupClass = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createGroupClass>>,
+    TError,
+    { data: BodyType<CreateGroupClassInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createGroupClass>>,
+  TError,
+  { data: BodyType<CreateGroupClassInput> },
+  TContext
+> => {
+  return useMutation(getCreateGroupClassMutationOptions(options));
+};
+
+export const getUpdateGroupClassUrl = (id: string) => {
+  return `/api/group-classes/${id}`;
+};
+
+export const updateGroupClass = async (
+  id: string,
+  updateGroupClassInput: UpdateGroupClassInput,
+  options?: RequestInit,
+): Promise<GroupClass> => {
+  return customFetch<GroupClass>(getUpdateGroupClassUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateGroupClassInput),
+  });
+};
+
+export const getUpdateGroupClassMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateGroupClass>>,
+    TError,
+    { id: string; data: BodyType<UpdateGroupClassInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateGroupClass>>,
+  TError,
+  { id: string; data: BodyType<UpdateGroupClassInput> },
+  TContext
+> => {
+  const mutationKey = ["updateGroupClass"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateGroupClass>>,
+    { id: string; data: BodyType<UpdateGroupClassInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateGroupClass(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateGroupClassMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateGroupClass>>
+>;
+export type UpdateGroupClassMutationBody = BodyType<UpdateGroupClassInput>;
+export type UpdateGroupClassMutationError = ErrorType<unknown>;
+
+export const useUpdateGroupClass = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateGroupClass>>,
+    TError,
+    { id: string; data: BodyType<UpdateGroupClassInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateGroupClass>>,
+  TError,
+  { id: string; data: BodyType<UpdateGroupClassInput> },
+  TContext
+> => {
+  return useMutation(getUpdateGroupClassMutationOptions(options));
+};
+
+export const getDeleteGroupClassUrl = (id: string) => {
+  return `/api/group-classes/${id}`;
+};
+
+export const deleteGroupClass = async (
+  id: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteGroupClassUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteGroupClassMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteGroupClass>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteGroupClass>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteGroupClass"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteGroupClass>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteGroupClass(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteGroupClassMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteGroupClass>>
+>;
+
+export type DeleteGroupClassMutationError = ErrorType<unknown>;
+
+export const useDeleteGroupClass = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteGroupClass>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteGroupClass>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteGroupClassMutationOptions(options));
+};
+
+export const getListGroupClassBookingsUrl = (id: string) => {
+  return `/api/group-classes/${id}/bookings`;
+};
+
+export const listGroupClassBookings = async (
+  id: string,
+  options?: RequestInit,
+): Promise<GroupClassBooking[]> => {
+  return customFetch<GroupClassBooking[]>(getListGroupClassBookingsUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListGroupClassBookingsQueryKey = (id: string) => {
+  return [`/api/group-classes/${id}/bookings`] as const;
+};
+
+export const getListGroupClassBookingsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listGroupClassBookings>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listGroupClassBookings>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListGroupClassBookingsQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listGroupClassBookings>>
+  > = ({ signal }) => listGroupClassBookings(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listGroupClassBookings>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListGroupClassBookingsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listGroupClassBookings>>
+>;
+export type ListGroupClassBookingsQueryError = ErrorType<unknown>;
+
+export function useListGroupClassBookings<
+  TData = Awaited<ReturnType<typeof listGroupClassBookings>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listGroupClassBookings>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListGroupClassBookingsQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+export const getBookGroupClassUrl = (id: string) => {
+  return `/api/group-classes/${id}/bookings`;
+};
+
+export const bookGroupClass = async (
+  id: string,
+  bookGroupClassInput: BookGroupClassInput,
+  options?: RequestInit,
+): Promise<GroupClassBooking> => {
+  return customFetch<GroupClassBooking>(getBookGroupClassUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(bookGroupClassInput),
+  });
+};
+
+export const getBookGroupClassMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bookGroupClass>>,
+    TError,
+    { id: string; data: BodyType<BookGroupClassInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof bookGroupClass>>,
+  TError,
+  { id: string; data: BodyType<BookGroupClassInput> },
+  TContext
+> => {
+  const mutationKey = ["bookGroupClass"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof bookGroupClass>>,
+    { id: string; data: BodyType<BookGroupClassInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return bookGroupClass(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type BookGroupClassMutationResult = NonNullable<
+  Awaited<ReturnType<typeof bookGroupClass>>
+>;
+export type BookGroupClassMutationBody = BodyType<BookGroupClassInput>;
+export type BookGroupClassMutationError = ErrorType<unknown>;
+
+export const useBookGroupClass = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bookGroupClass>>,
+    TError,
+    { id: string; data: BodyType<BookGroupClassInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof bookGroupClass>>,
+  TError,
+  { id: string; data: BodyType<BookGroupClassInput> },
+  TContext
+> => {
+  return useMutation(getBookGroupClassMutationOptions(options));
+};
+
+export const getCheckOutAttendanceUrl = (id: string) => {
+  return `/api/attendance/${id}/check-out`;
+};
+
+export const checkOutAttendance = async (
+  id: string,
+  options?: RequestInit,
+): Promise<AttendanceRecord> => {
+  return customFetch<AttendanceRecord>(getCheckOutAttendanceUrl(id), {
+    ...options,
+    method: "PATCH",
+  });
+};
+
+export const getCheckOutAttendanceMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof checkOutAttendance>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof checkOutAttendance>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["checkOutAttendance"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof checkOutAttendance>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return checkOutAttendance(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CheckOutAttendanceMutationResult = NonNullable<
+  Awaited<ReturnType<typeof checkOutAttendance>>
+>;
+
+export type CheckOutAttendanceMutationError = ErrorType<unknown>;
+
+export const useCheckOutAttendance = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof checkOutAttendance>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof checkOutAttendance>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getCheckOutAttendanceMutationOptions(options));
 };

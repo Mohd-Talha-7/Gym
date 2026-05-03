@@ -577,3 +577,118 @@ export interface CreateNutritionPlanInput {
   macros: CreateNutritionPlanInputMacros;
   meals: CreateNutritionPlanInputMealsItem[];
 }
+
+export interface Trainer {
+  id: string;
+  name: string;
+  phone: string;
+  /** @nullable */
+  email?: string | null;
+  specialty: string;
+  experienceYears: number;
+  hourlyRate: number;
+  status: string;
+  avatarUrl: string;
+  /** @nullable */
+  bio?: string | null;
+}
+
+export interface CreateTrainerInput {
+  name: string;
+  phone: string;
+  /** @nullable */
+  email?: string | null;
+  specialty: string;
+  /** @nullable */
+  experienceYears?: number | null;
+  /** @nullable */
+  hourlyRate?: number | null;
+  /** @nullable */
+  status?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
+  /** @nullable */
+  bio?: string | null;
+}
+
+export interface UpdateTrainerInput {
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  phone?: string | null;
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  specialty?: string | null;
+  /** @nullable */
+  experienceYears?: number | null;
+  /** @nullable */
+  hourlyRate?: number | null;
+  /** @nullable */
+  status?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
+  /** @nullable */
+  bio?: string | null;
+}
+
+export interface GroupClass {
+  id: string;
+  name: string;
+  category: string;
+  trainer: string;
+  capacity: number;
+  durationMins: number;
+  scheduledAt: string;
+  room: string;
+  status: string;
+  bookedCount: number;
+}
+
+export interface CreateGroupClassInput {
+  name: string;
+  /** @nullable */
+  category?: string | null;
+  trainer: string;
+  /** @nullable */
+  capacity?: number | null;
+  /** @nullable */
+  durationMins?: number | null;
+  scheduledAt: string;
+  /** @nullable */
+  room?: string | null;
+  /** @nullable */
+  status?: string | null;
+}
+
+export interface UpdateGroupClassInput {
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  category?: string | null;
+  /** @nullable */
+  trainer?: string | null;
+  /** @nullable */
+  capacity?: number | null;
+  /** @nullable */
+  durationMins?: number | null;
+  /** @nullable */
+  scheduledAt?: string | null;
+  /** @nullable */
+  room?: string | null;
+  /** @nullable */
+  status?: string | null;
+}
+
+export interface GroupClassBooking {
+  id: string;
+  classId: string;
+  memberId: string;
+  memberName: string;
+  status: string;
+  bookedAt: string;
+}
+
+export interface BookGroupClassInput {
+  memberId: string;
+}
