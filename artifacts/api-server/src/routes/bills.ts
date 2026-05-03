@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
-import { db, billsTable, membersTable } from "@workspace/db";
+import { db, billsTable, membersTable, sportsBillsTable } from "@workspace/db";
 import {
   ListBillsResponse,
   CreateBillBody,
@@ -62,6 +62,22 @@ router.post("/bills", async (req, res): Promise<void> => {
     .update(membersTable)
     .set({ balanceDue: newBalance })
     .where(eq(membersTable.id, parsed.data.memberId));
+
+  // Sports bills also feed the sports report/history table for consistency.
+  if (parsed.data.type === "sports") {
+    const firstItem = parsed.data.items[0];
+    const itemName = firstItem?.name ?? "Sports";
+    const [sport, ...packageParts] = itemName.split(" – ");
+    await db.insert(sportsBillsTable).values({
+      id: makeId("SB"),
+      memberId: parsed.data.memberId,
+      memberName: member.name,
+      sport: sport.trim(),
+      packageName: packageParts.join(" – ").trim() || itemName,
+      amount,
+      status,
+    });
+  }
 
   res.status(201).json({
     ...row,

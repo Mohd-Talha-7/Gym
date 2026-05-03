@@ -24,7 +24,12 @@ import SportsReport from '@/components/SportsReport';
 import MarkAttendance from '@/components/MarkAttendance';
 import AttendanceReport from '@/components/AttendanceReport';
 import SettingsPanel from '@/components/SettingsPanel';
-import { useGetSettings } from '@workspace/api-client-react';
+import {
+  useGetSettings,
+  useGetTodaySchedule,
+  useGetCollectionProgress,
+  useGetRevenue,
+} from '@workspace/api-client-react';
 import {
   Activity, LayoutDashboard, UserCheck, Calendar, FileText, Users, MessageSquare, HelpCircle, Search, Mail, Bell, ChevronDown, Plus, Upload, ArrowUpRight, UserPlus, CreditCard, CalendarPlus, Video, DollarSign, Settings, Pause, Square, ChevronUp, ClipboardList, RefreshCw, UserMinus, Cake, Gift, CalendarDays, CheckSquare, Medal, Package, Wallet, BarChart2, Contact, GraduationCap, Shield, Smartphone, Eye, LineChart
 } from 'lucide-react';
@@ -39,6 +44,9 @@ function Dashboard() {
   const { data: stats } = useGetDashboardStats();
   const { data: settings } = useGetSettings();
   const theme = settings?.theme ?? 'default';
+  const { data: todaySchedule = [] } = useGetTodaySchedule();
+  const { data: collectionProgress } = useGetCollectionProgress();
+  const { data: revenueSummary } = useGetRevenue();
 
   return (
     <div className={`absolute inset-0 h-screen w-full overflow-hidden bg-theme-bg-main ${theme === 'default' ? '' : `theme-${theme}`}`}>
@@ -472,27 +480,31 @@ function Dashboard() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-50">
-                        {[
-                          { name: 'Priya', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 border-emerald-100', time: '10:00 PM' },
-                          { name: 'Rahul', status: 'In Progress', statusColor: 'bg-yellow-50 text-yellow-600 border-yellow-100', time: '12:00 PM' },
-                          { name: 'Meena', status: 'Pending', statusColor: 'bg-orange-50 text-orange-600 border-orange-100', time: '10:30 PM' },
-                          { name: 'Suresh', status: 'Pending', statusColor: 'bg-rose-50 text-rose-600 border-rose-100', time: '10:00 PM' },
-                        ].map((row) => (
-                          <tr key={row.name}>
-                            <td className="py-1.5">
-                              <div className="flex items-center gap-2">
-                                <img alt={row.name} className="w-6 h-6 rounded-full object-cover bg-gray-100" src={`https://i.pravatar.cc/40?u=${row.name}`} />
-                                <span className="font-medium text-gray-800">{row.name}</span>
-                              </div>
-                            </td>
-                            <td className="py-1.5">
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-medium border ${row.statusColor}`}>
-                                {row.status}
-                              </span>
-                            </td>
-                            <td className="py-1.5 text-right text-gray-500">{row.time}</td>
-                          </tr>
-                        ))}
+                        {todaySchedule.length === 0 ? (
+                          <tr><td colSpan={3} className="py-3 text-center text-gray-400 text-[11px]">No sessions today.</td></tr>
+                        ) : todaySchedule.map((row) => {
+                          const statusColor = row.status === 'completed'
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                            : row.status === 'in-progress'
+                              ? 'bg-yellow-50 text-yellow-600 border-yellow-100'
+                              : 'bg-orange-50 text-orange-600 border-orange-100';
+                          return (
+                            <tr key={row.id}>
+                              <td className="py-1.5">
+                                <div className="flex items-center gap-2">
+                                  <img alt={row.trainer} className="w-6 h-6 rounded-full object-cover bg-gray-100" src={row.avatarUrl || `https://i.pravatar.cc/40?u=${row.trainer}`} />
+                                  <span className="font-medium text-gray-800">{row.trainer}</span>
+                                </div>
+                              </td>
+                              <td className="py-1.5">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-medium border ${statusColor}`}>
+                                  {row.status}
+                                </span>
+                              </td>
+                              <td className="py-1.5 text-right text-gray-500">{row.time}</td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -502,10 +514,10 @@ function Dashboard() {
                       <div className="relative w-24 h-24 flex items-center justify-center">
                         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                           <path className="text-gray-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="4"></path>
-                          <path className="text-theme-primary-main" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeDasharray="78, 100" strokeLinecap="round" strokeWidth="4"></path>
+                          <path className="text-theme-primary-main" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeDasharray={`${collectionProgress?.percent ?? 0}, 100`} strokeLinecap="round" strokeWidth="4"></path>
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className="text-xl font-bold text-gray-800">78%</span>
+                          <span className="text-xl font-bold text-gray-800">{collectionProgress?.percent ?? 0}%</span>
                           <span className="text-[8px] text-gray-500">collected</span>
                         </div>
                       </div>
@@ -516,7 +528,7 @@ function Dashboard() {
                       <h3 className="text-gray-800 font-semibold mb-2 text-sm">Revenue Tracker</h3>
                       <p className="text-[10px] text-gray-500 mb-1">Revenue</p>
                       <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-bold text-gray-900">₹12,500</h2>
+                        <h2 className="text-2xl font-bold text-gray-900">₹{((revenueSummary?.revenue ?? 0) / 100).toLocaleString('en-IN')}</h2>
                         <div className="flex gap-1">
                           <div className="w-5 h-5 rounded-full bg-theme-primary-light flex items-center justify-center text-theme-primary-text cursor-pointer">
                             <Pause className="w-2.5 h-2.5" fill="currentColor" />
@@ -530,7 +542,7 @@ function Dashboard() {
                     <div className="mt-2 flex items-end justify-between">
                       <div>
                         <p className="text-[10px] text-gray-500">Monthly Growth:</p>
-                        <p className="text-xs font-bold text-theme-primary-main">+12%</p>
+                        <p className="text-xs font-bold text-theme-primary-main">{(revenueSummary?.growth ?? 0) >= 0 ? '+' : ''}{revenueSummary?.growth ?? 0}%</p>
                       </div>
                       <div className="w-16 h-8 opacity-70">
                         <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
