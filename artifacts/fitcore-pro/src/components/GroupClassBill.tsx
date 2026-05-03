@@ -29,7 +29,7 @@ export default function GroupClassBill({ onNavigate }: { onNavigate: (path: stri
             onSuccess: () => {
                 qc.invalidateQueries({ queryKey: getListBillsQueryKey() });
                 if (memberId) qc.invalidateQueries({ queryKey: getListMemberBillsQueryKey(memberId) });
-                onNavigate('billing-history');
+                onNavigate('pos');
             },
         },
     });
@@ -62,7 +62,7 @@ export default function GroupClassBill({ onNavigate }: { onNavigate: (path: stri
             <div className="mb-6 mt-2">
                 <nav className="flex text-sm text-theme-text-muted mb-2">
                     <ol className="flex items-center space-x-2">
-                        <li><button type="button" onClick={() => onNavigate('billing-history')} className="hover:text-theme-text-main">Billing</button></li>
+                        <li><button type="button" onClick={() => onNavigate('pos')} className="hover:text-theme-text-main">Billing</button></li>
                         <li><span className="mx-1">/</span></li>
                         <li className="font-medium text-theme-text-main">Group Class Bill</li>
                     </ol>
@@ -119,7 +119,7 @@ export default function GroupClassBill({ onNavigate }: { onNavigate: (path: stri
                 </div>
                 {create.isError && <p className="text-sm text-red-600">Failed to create bill — try again.</p>}
                 <div className="flex justify-end gap-3 pt-4 border-t border-theme-border">
-                    <button type="button" onClick={() => onNavigate('billing-history')} className="px-5 py-2 text-sm font-medium text-on-surface-variant rounded-lg border border-theme-border">Cancel</button>
+                    <button type="button" onClick={() => onNavigate('pos')} className="px-5 py-2 text-sm font-medium text-on-surface-variant rounded-lg border border-theme-border">Cancel</button>
                     <button type="submit" disabled={create.isPending} className="px-6 py-2 text-sm font-bold text-white bg-theme-primary-main rounded-lg disabled:opacity-50">
                         {create.isPending ? 'Saving…' : 'Create Group Class Bill'}
                     </button>
