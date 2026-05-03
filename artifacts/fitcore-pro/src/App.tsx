@@ -556,14 +556,14 @@ function Dashboard() {
               <InquiriesDashboard onNavigate={setActiveTab} />
             ) : activeTab === 'inquiries-add' ? (
               <AddInquiry onNavigate={setActiveTab} />
-            ) : activeTab === 'inquiries-detail' ? (
-              <InquiryDetail onNavigate={setActiveTab} />
+            ) : activeTab.startsWith('inquiries-detail') ? (
+              <InquiryDetail onNavigate={setActiveTab} inquiryId={activeTab.split(':')[1] ?? ''} />
             ) : activeTab === 'members' ? (
               <ClientsDashboard onNavigate={setActiveTab} />
             ) : activeTab === 'members-add' ? (
               <AddClient onNavigate={setActiveTab} />
-            ) : activeTab === 'members-detail' ? (
-              <ClientProfile onNavigate={setActiveTab} />
+            ) : activeTab.startsWith('members-detail') ? (
+              <ClientProfile onNavigate={setActiveTab} memberId={activeTab.split(':')[1] ?? ''} />
             ) : activeTab === 'birthdays_anniversaries' ? (
               <BirthdaysAnniversaries />
             ) : activeTab === 'group-class-bill' ? (

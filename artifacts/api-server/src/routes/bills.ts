@@ -95,6 +95,16 @@ router.patch("/bills/:id", async (req, res): Promise<void> => {
     .select()
     .from(membersTable)
     .where(eq(membersTable.id, row.memberId));
+  // Recompute member balance: subtract previous outstanding, add new outstanding.
+  if (member && updates.paid != null) {
+    const previousOutstanding = existing.amount - existing.paid;
+    const newOutstanding = row.amount - row.paid;
+    const newBalance = Math.max(0, member.balanceDue - previousOutstanding + newOutstanding);
+    await db
+      .update(membersTable)
+      .set({ balanceDue: newBalance })
+      .where(eq(membersTable.id, member.id));
+  }
   res.json({
     ...row,
     memberName: member?.name ?? "Unknown",

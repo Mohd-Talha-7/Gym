@@ -1,222 +1,198 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+    useGetInquiry,
+    useUpdateInquiry,
+    useConvertInquiry,
+    getGetInquiryQueryKey,
+    getListInquiriesQueryKey,
+    getListMembersQueryKey,
+    getGetDashboardStatsQueryKey,
+} from '@workspace/api-client-react';
 
-export default function InquiryDetail({ onNavigate }: { onNavigate: (path: string) => void }) {
+export default function InquiryDetail({ onNavigate, inquiryId }: { onNavigate: (path: string) => void; inquiryId: string }) {
+    const qc = useQueryClient();
+    const { data: inquiry, isLoading } = useGetInquiry(inquiryId);
+    const [form, setForm] = useState({
+        name: '', phone: '', email: '', interest: '', source: '', assignedTo: '', notes: '',
+    });
+    const [statusDraft, setStatusDraft] = useState('');
+
+    useEffect(() => {
+        if (inquiry) {
+            setForm({
+                name: inquiry.name,
+                phone: inquiry.phone,
+                email: inquiry.email ?? '',
+                interest: inquiry.interest,
+                source: inquiry.source,
+                assignedTo: inquiry.assignedTo,
+                notes: inquiry.notes ?? '',
+            });
+            setStatusDraft(inquiry.status);
+        }
+    }, [inquiry]);
+
+    const updateInquiry = useUpdateInquiry({
+        mutation: {
+            onSuccess: () => {
+                qc.invalidateQueries({ queryKey: getGetInquiryQueryKey(inquiryId) });
+                qc.invalidateQueries({ queryKey: getListInquiriesQueryKey() });
+            },
+        },
+    });
+
+    const convertInquiry = useConvertInquiry({
+        mutation: {
+            onSuccess: () => {
+                qc.invalidateQueries({ queryKey: getListInquiriesQueryKey() });
+                qc.invalidateQueries({ queryKey: getGetInquiryQueryKey(inquiryId) });
+                qc.invalidateQueries({ queryKey: getListMembersQueryKey() });
+                qc.invalidateQueries({ queryKey: getGetDashboardStatsQueryKey() });
+                onNavigate('members');
+            },
+        },
+    });
+
+    if (isLoading) return <div className="p-8 text-theme-text-muted">Loading inquiry…</div>;
+    if (!inquiry) {
+        return (
+            <div className="p-8">
+                <button onClick={() => onNavigate('inquiries')} className="text-theme-primary-main font-bold">← Back to Inquiries</button>
+                <p className="mt-4 text-theme-text-muted">Inquiry not found.</p>
+            </div>
+        );
+    }
+
+    const handleSave = () => {
+        updateInquiry.mutate({
+            id: inquiryId,
+            data: {
+                name: form.name,
+                phone: form.phone,
+                email: form.email || null,
+                interest: form.interest,
+                source: form.source,
+                assignedTo: form.assignedTo,
+                notes: form.notes || null,
+            },
+        });
+    };
+
+    const handleStatusUpdate = () => {
+        if (statusDraft && statusDraft !== inquiry.status) {
+            updateInquiry.mutate({ id: inquiryId, data: { status: statusDraft } });
+        }
+    };
+
+    const handleConvert = () => {
+        if (window.confirm(`Convert ${inquiry.name} to a member?`)) {
+            convertInquiry.mutate({ id: inquiryId });
+        }
+    };
+
+    const statusColor: Record<string, string> = {
+        pending: 'bg-amber-50 text-amber-600 border-amber-100',
+        contacted: 'bg-blue-50 text-blue-600 border-blue-100',
+        converted: 'bg-green-50 text-green-700 border-green-100',
+        lost: 'bg-rose-50 text-rose-600 border-rose-100',
+    };
+
     return (
         <div className="flex flex-col xl:flex-row min-h-full h-auto w-full max-w-[1920px] mx-auto -mx-4 md:-mx-6 px-4 md:px-6">
-            {/* Main Canvas */}
             <main className="flex-1 pr-0 xl:pr-6 pb-24 w-full">
-                {/* Breadcrumb */}
                 <nav className="my-6 flex items-center gap-2 text-theme-text-muted text-[11px] uppercase tracking-[0.05em] font-semibold">
-                    <button onClick={() => onNavigate('inquiries')} className="hover:text-theme-primary-main transition-colors">Inquiries</button>
+                    <button onClick={() => onNavigate('inquiries')} className="hover:text-theme-primary-main">Inquiries</button>
                     <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-                    <span className="text-theme-text-main font-bold">Arjun Sharma</span>
+                    <span className="text-theme-text-main font-bold">{inquiry.name}</span>
                 </nav>
 
-                {/* Page Header */}
                 <div className="mb-8">
-                    <h1 className="text-2xl font-bold tracking-tight text-theme-text-main">Arjun Sharma</h1>
-                    <p className="text-theme-text-muted text-sm mt-1">Lead ID: #8829 • Social Media Inquiry</p>
+                    <h1 className="text-2xl font-bold tracking-tight text-theme-text-main">{inquiry.name}</h1>
+                    <p className="text-theme-text-muted text-sm mt-1">Lead ID: {inquiry.id} • {inquiry.source}</p>
                 </div>
 
-                {/* Bento Layout Content */}
                 <div className="grid grid-cols-12 gap-6 w-full">
-                    {/* Left Column: Inquiry Details Card */}
                     <div className="col-span-12 lg:col-span-7 space-y-6">
                         <section className="bg-theme-bg-card rounded-xl p-6 border border-theme-border shadow-sm">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-sm font-bold uppercase tracking-wider text-theme-text-muted">Inquiry Details</h2>
-                                <span className="material-symbols-outlined text-theme-text-muted cursor-pointer hover:text-theme-primary-main">edit</span>
-                            </div>
+                            <h2 className="text-sm font-bold uppercase tracking-wider text-theme-text-muted mb-6">Inquiry Details</h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-theme-text-muted">Full Name</label>
-                                    <input className="w-full bg-transparent border-none p-0 font-semibold text-theme-text-main focus:ring-0" type="text" defaultValue="Arjun Sharma" />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-theme-text-muted">Phone Number</label>
-                                    <input className="w-full bg-transparent border-none p-0 font-semibold text-theme-text-main focus:ring-0" type="text" defaultValue="+91 98765 43210" />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-theme-text-muted">Email Address</label>
-                                    <input className="w-full bg-transparent border-none p-0 font-semibold text-theme-text-main focus:ring-0" type="email" defaultValue="arjun.s@email.com" />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-theme-text-muted">Primary Interest</label>
-                                    <select className="w-full bg-transparent border-none p-0 cursor-pointer font-semibold text-theme-text-main focus:ring-0 appearance-none">
-                                        <option value="pt">Personal Training</option>
-                                        <option value="yoga">Yoga Classes</option>
-                                        <option value="general">General Membership</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-theme-text-muted">Source</label>
-                                    <div className="font-semibold text-theme-text-main">Social Media</div>
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-theme-text-muted">Assigned Staff</label>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-6 h-6 rounded-full bg-theme-primary-light flex items-center justify-center text-[10px] text-theme-primary-text font-bold">RV</div>
-                                        <span className="font-semibold text-theme-text-main">Rahul Verma</span>
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-theme-text-muted">Follow-up Date</label>
-                                    <input className="w-full bg-transparent border-none p-0 font-semibold text-theme-text-main focus:ring-0" type="date" defaultValue="2024-10-25" />
-                                </div>
+                                <Field label="Full Name">
+                                    <input className="w-full bg-transparent border-b border-theme-border p-1 font-semibold text-theme-text-main focus:outline-none focus:border-theme-primary-main" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                                </Field>
+                                <Field label="Phone Number">
+                                    <input className="w-full bg-transparent border-b border-theme-border p-1 font-semibold text-theme-text-main focus:outline-none focus:border-theme-primary-main" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                                </Field>
+                                <Field label="Email Address">
+                                    <input className="w-full bg-transparent border-b border-theme-border p-1 font-semibold text-theme-text-main focus:outline-none focus:border-theme-primary-main" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                                </Field>
+                                <Field label="Primary Interest">
+                                    <input className="w-full bg-transparent border-b border-theme-border p-1 font-semibold text-theme-text-main focus:outline-none focus:border-theme-primary-main" value={form.interest} onChange={(e) => setForm({ ...form, interest: e.target.value })} />
+                                </Field>
+                                <Field label="Source">
+                                    <input className="w-full bg-transparent border-b border-theme-border p-1 font-semibold text-theme-text-main focus:outline-none focus:border-theme-primary-main" value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })} />
+                                </Field>
+                                <Field label="Assigned Staff">
+                                    <input className="w-full bg-transparent border-b border-theme-border p-1 font-semibold text-theme-text-main focus:outline-none focus:border-theme-primary-main" value={form.assignedTo} onChange={(e) => setForm({ ...form, assignedTo: e.target.value })} />
+                                </Field>
                             </div>
 
                             <div className="mt-8 space-y-1">
                                 <label className="block text-[11px] font-semibold uppercase tracking-wider text-theme-text-muted">Remarks</label>
-                                <textarea className="w-full bg-transparent border-none p-0 font-semibold text-theme-text-main focus:ring-0 min-h-[80px] resize-none" defaultValue="Interested in weight loss and evening sessions. Mentioned past injury in left knee." />
+                                <textarea className="w-full bg-transparent border border-theme-border rounded p-2 font-semibold text-theme-text-main focus:outline-none focus:border-theme-primary-main min-h-[80px] resize-none" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
                             </div>
 
                             <div className="mt-8 pt-6 border-t border-theme-border">
-                                <button className="bg-theme-primary-main text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-sm">
-                                    Save Changes
+                                <button onClick={handleSave} disabled={updateInquiry.isPending} className="bg-theme-primary-main text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 shadow-sm disabled:opacity-50">
+                                    {updateInquiry.isPending ? 'Saving…' : 'Save Changes'}
                                 </button>
                             </div>
                         </section>
                     </div>
 
-                    {/* Right Column within Main Area */}
                     <div className="col-span-12 lg:col-span-5 space-y-6">
-                        {/* Status Update Card */}
                         <section className="bg-theme-bg-card rounded-xl p-6 border border-theme-border shadow-sm">
                             <h2 className="text-sm font-bold uppercase tracking-wider text-theme-text-muted mb-6">Status Update</h2>
-                            <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-4 mb-6">
-                                <div className="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shrink-0 border border-blue-100">
-                                    Contacted
-                                </div>
-                                <div className="flex-1 w-full min-w-[140px]">
-                                    <select defaultValue="update" className="w-full border-none bg-theme-bg-main p-2 rounded-lg text-sm font-semibold text-theme-text-main focus:ring-1 focus:ring-theme-primary-main outline-none">
-                                        <option value="update" disabled>Update Status...</option>
-                                        <option value="pending">Pending</option>
-                                        <option value="contacted">Contacted</option>
-                                        <option value="converted">Converted</option>
-                                        <option value="lost">Lost</option>
-                                    </select>
-                                </div>
+                            <div className="flex items-center justify-between gap-4 mb-6">
+                                <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border capitalize ${statusColor[inquiry.status] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>{inquiry.status}</div>
+                                <select value={statusDraft} onChange={(e) => setStatusDraft(e.target.value)} className="flex-1 border-none bg-theme-bg-main p-2 rounded-lg text-sm font-semibold text-theme-text-main focus:ring-1 focus:ring-theme-primary-main">
+                                    <option value="pending">Pending</option>
+                                    <option value="contacted">Contacted</option>
+                                    <option value="converted">Converted</option>
+                                    <option value="lost">Lost</option>
+                                </select>
                             </div>
-                            <button className="w-full py-2.5 rounded-xl border-2 border-theme-primary-main text-theme-primary-main font-bold text-sm hover:bg-theme-primary-light transition-colors">
+                            <button onClick={handleStatusUpdate} disabled={updateInquiry.isPending || statusDraft === inquiry.status} className="w-full py-2.5 rounded-xl border-2 border-theme-primary-main text-theme-primary-main font-bold text-sm hover:bg-theme-primary-light disabled:opacity-50">
                                 Update Status
                             </button>
                         </section>
 
-                        {/* Activity Timeline */}
-                        <section className="bg-theme-bg-card rounded-xl p-6 border border-theme-border shadow-sm flex flex-col h-auto">
-                            <h2 className="text-sm font-bold uppercase tracking-wider text-theme-text-muted mb-6">Activity Timeline</h2>
-
-                            <div className="space-y-6 relative before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-theme-border flex-1">
-                                {/* Note Item */}
-                                <div className="relative pl-8 z-10">
-                                    <div className="absolute left-0 top-1.5 w-[23px] h-[23px] rounded-full bg-theme-primary-main flex items-center justify-center ring-4 ring-theme-bg-card">
-                                        <span className="material-symbols-outlined text-white text-[12px]">chat_bubble</span>
-                                    </div>
-                                    <div>
-                                        <div className="flex justify-between items-start">
-                                            <h4 className="text-sm font-bold text-theme-text-main">Rahul Verma</h4>
-                                            <span className="text-[10px] text-theme-text-muted font-bold uppercase">2 hours ago</span>
-                                        </div>
-                                        <p className="text-sm text-theme-text-muted mt-1 leading-relaxed font-medium">Spoke to Arjun, he is coming for a trial session tomorrow.</p>
-                                    </div>
-                                </div>
-
-                                {/* System Item */}
-                                <div className="relative pl-8 z-10">
-                                    <div className="absolute left-0 top-1.5 w-[23px] h-[23px] rounded-full bg-theme-border flex items-center justify-center ring-4 ring-theme-bg-card">
-                                        <span className="material-symbols-outlined text-theme-text-muted text-[14px]">auto_awesome</span>
-                                    </div>
-                                    <div>
-                                        <div className="flex justify-between items-start">
-                                            <h4 className="text-sm font-bold text-theme-text-main">System</h4>
-                                            <span className="text-[10px] text-theme-text-muted font-bold uppercase">Yesterday</span>
-                                        </div>
-                                        <p className="text-sm text-theme-text-muted mt-1 leading-relaxed font-medium">Inquiry created via Instagram Ad.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Add Note Area */}
-                            <div className="mt-8 pt-6 border-t border-theme-border">
-                                <textarea className="w-full bg-theme-bg-main border border-transparent rounded-xl p-4 text-sm focus:ring-1 focus:ring-theme-primary-main outline-none min-h-[100px] text-theme-text-main placeholder-theme-text-muted resize-none" placeholder="Add a note..."></textarea>
-                                <button className="mt-3 w-full bg-theme-border text-theme-text-main font-bold text-sm py-2.5 rounded-xl hover:bg-slate-300 transition-colors">
-                                    Add Note
-                                </button>
+                        <section className="bg-theme-bg-card rounded-xl p-6 border border-theme-border shadow-sm">
+                            <h2 className="text-sm font-bold uppercase tracking-wider text-theme-text-muted mb-4">Inquiry Info</h2>
+                            <div className="space-y-3 text-sm">
+                                <div className="flex justify-between"><span className="text-theme-text-muted">Created</span><span className="font-bold">{new Date(inquiry.inquiryDate).toLocaleString('en-IN')}</span></div>
                             </div>
                         </section>
                     </div>
                 </div>
 
-                {/* Float Action / Bottom CTA Area relative to main canvas */}
                 <div className="mt-8 lg:mt-12 flex justify-end">
-                    <button className="flex items-center gap-3 bg-theme-primary-main text-white px-8 py-4 rounded-full font-bold shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    <button onClick={handleConvert} disabled={convertInquiry.isPending || inquiry.status === 'converted'} className="flex items-center gap-3 bg-theme-primary-main text-white px-8 py-4 rounded-full font-bold shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50">
                         <span className="material-symbols-outlined">person_add</span>
-                        <span>Convert to Client</span>
+                        <span>{convertInquiry.isPending ? 'Converting…' : inquiry.status === 'converted' ? 'Already Converted' : 'Convert to Client'}</span>
                     </button>
                 </div>
             </main>
+        </div>
+    );
+}
 
-            {/* Right SideNavBar Execution */}
-            <aside className="w-full xl:w-64 shrink-0 bg-theme-bg-main border-l border-theme-border pb-12 pt-6 pl-0 xl:pl-6 hidden xl:flex flex-col min-h-full">
-                <div className="bg-theme-primary-main rounded-xl p-4 text-white mb-6 mt-6 mr-6 xl:mr-0 xl:-ml-3 shadow-md shadow-theme-primary-main/20">
-                    <div className="flex items-center gap-3 mb-1">
-                        <div className="w-8 h-8 rounded-full border-2 border-white/20 bg-theme-primary-hover flex items-center justify-center font-bold text-sm shrink-0">
-                            QA
-                        </div>
-                        <div>
-                            <div className="text-xs font-bold uppercase tracking-widest opacity-80">Management</div>
-                            <div className="text-sm font-bold">Quick Actions</div>
-                        </div>
-                    </div>
-                </div>
-
-                <nav className="space-y-1">
-                    <a className="flex items-center justify-between group bg-theme-primary-light text-theme-primary-text border-l-2 border-theme-primary-main px-4 py-3 transition-all duration-200" href="#" onClick={(e) => e.preventDefault()}>
-                        <div className="flex items-center gap-3">
-                            <span className="material-symbols-outlined text-[20px]">bolt</span>
-                            <span className="text-sm font-semibold">Quick Actions</span>
-                        </div>
-                    </a>
-                    <a className="flex items-center justify-between group text-theme-text-muted hover:bg-theme-bg-card hover:text-theme-text-main px-4 py-3 rounded-lg transition-all duration-200" href="#" onClick={(e) => e.preventDefault()}>
-                        <div className="flex items-center gap-3">
-                            <span className="material-symbols-outlined text-[20px]">analytics</span>
-                            <span className="text-sm font-medium">Inquiry Status</span>
-                        </div>
-                        <span className="bg-rose-100 text-rose-600 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-full">12</span>
-                    </a>
-                    <a className="flex items-center justify-between group text-theme-text-muted hover:bg-theme-bg-card hover:text-theme-text-main px-4 py-3 rounded-lg transition-all duration-200" href="#" onClick={(e) => e.preventDefault()}>
-                        <div className="flex items-center gap-3">
-                            <span className="material-symbols-outlined text-[20px]">person</span>
-                            <span className="text-sm font-medium">Member Profile</span>
-                        </div>
-                    </a>
-                    <a className="flex items-center justify-between group text-theme-text-muted hover:bg-theme-bg-card hover:text-theme-text-main px-4 py-3 rounded-lg transition-all duration-200" href="#" onClick={(e) => e.preventDefault()}>
-                        <div className="flex items-center gap-3">
-                            <span className="material-symbols-outlined text-[20px]">payments</span>
-                            <span className="text-sm font-medium">Payment History</span>
-                        </div>
-                    </a>
-                    <a className="flex items-center justify-between group text-theme-text-muted hover:bg-theme-bg-card hover:text-theme-text-main px-4 py-3 rounded-lg transition-all duration-200" href="#" onClick={(e) => e.preventDefault()}>
-                        <div className="flex items-center gap-3">
-                            <span className="material-symbols-outlined text-[20px]">star</span>
-                            <span className="text-sm font-medium">Lead Score</span>
-                        </div>
-                        <span className="bg-rose-100 border border-rose-200 text-rose-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Hot</span>
-                    </a>
-                </nav>
-
-                <div className="mt-12 pt-8 border-t border-theme-border space-y-1">
-                    <a className="flex items-center gap-3 text-theme-text-muted hover:bg-theme-bg-card hover:text-theme-text-main rounded-lg px-4 py-2.5 transition-all" href="#" onClick={(e) => e.preventDefault()}>
-                        <span className="material-symbols-outlined text-[18px]">contact_support</span>
-                        <span className="text-xs font-bold uppercase tracking-wider">Support</span>
-                    </a>
-                    <a className="flex items-center gap-3 text-theme-text-muted hover:bg-theme-bg-card hover:text-theme-text-main rounded-lg px-4 py-2.5 transition-all" href="#" onClick={(e) => e.preventDefault()}>
-                        <span className="material-symbols-outlined text-[18px]">help</span>
-                        <span className="text-xs font-bold uppercase tracking-wider">Help</span>
-                    </a>
-                </div>
-            </aside>
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+    return (
+        <div className="space-y-1">
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-theme-text-muted">{label}</label>
+            {children}
         </div>
     );
 }

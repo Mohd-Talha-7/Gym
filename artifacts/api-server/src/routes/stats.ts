@@ -64,7 +64,15 @@ router.get("/stats/attendance-analytics", async (_req, res): Promise<void> => {
 });
 
 router.get("/stats/today-schedule", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(scheduleTable).orderBy(scheduleTable.scheduledAt);
+  const dayStart = new Date();
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart);
+  dayEnd.setDate(dayEnd.getDate() + 1);
+  const rows = await db
+    .select()
+    .from(scheduleTable)
+    .where(and(gte(scheduleTable.scheduledAt, dayStart), lt(scheduleTable.scheduledAt, dayEnd)))
+    .orderBy(scheduleTable.scheduledAt);
   const items = rows.map((r) => ({
     id: r.id,
     trainer: r.trainer,

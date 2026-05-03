@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { inArray, desc } from "drizzle-orm";
+import { inArray, desc, eq, sql } from "drizzle-orm";
 import { db, posProductsTable, posSalesTable, settingsTable } from "@workspace/db";
 import {
   ListPosProductsResponse,
@@ -37,9 +37,13 @@ router.post("/pos/sales", async (req, res): Promise<void> => {
     .where(inArray(posProductsTable.id, productIds));
   const productMap = new Map(products.map((p) => [p.id, p]));
 
+  const missing = parsed.data.items.find((i) => !productMap.has(i.productId));
+  if (missing) {
+    res.status(400).json({ error: `Product ${missing.productId} not found` });
+    return;
+  }
   const items = parsed.data.items.map((i) => {
-    const p = productMap.get(i.productId);
-    if (!p) throw new Error(`Product ${i.productId} not found`);
+    const p = productMap.get(i.productId)!;
     return { productId: p.id, name: p.name, quantity: i.quantity, price: p.price };
   });
 
@@ -63,6 +67,14 @@ router.post("/pos/sales", async (req, res): Promise<void> => {
       paymentMode: parsed.data.paymentMode,
     })
     .returning();
+
+  // Decrement stock for each item.
+  for (const i of parsed.data.items) {
+    await db
+      .update(posProductsTable)
+      .set({ stock: sql`GREATEST(0, ${posProductsTable.stock} - ${i.quantity})` })
+      .where(eq(posProductsTable.id, i.productId));
+  }
   res.status(201).json(row);
 });
 
