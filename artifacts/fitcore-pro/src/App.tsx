@@ -23,7 +23,8 @@ import SportsPackages from '@/components/SportsPackages';
 import SportsReport from '@/components/SportsReport';
 import MarkAttendance from '@/components/MarkAttendance';
 import AttendanceReport from '@/components/AttendanceReport';
-import ThemePreviewCard from '@/components/ThemePreviewCard';
+import SettingsPanel from '@/components/SettingsPanel';
+import { useGetSettings } from '@workspace/api-client-react';
 import {
   Activity, LayoutDashboard, UserCheck, Calendar, FileText, Users, MessageSquare, HelpCircle, Search, Mail, Bell, ChevronDown, Plus, Upload, ArrowUpRight, UserPlus, CreditCard, CalendarPlus, Video, DollarSign, Settings, Pause, Square, ChevronUp, ClipboardList, RefreshCw, UserMinus, Cake, Gift, CalendarDays, CheckSquare, Medal, Package, Wallet, BarChart2, Contact, GraduationCap, Shield, Smartphone, Eye, LineChart
 } from 'lucide-react';
@@ -33,10 +34,11 @@ const queryClient = new QueryClient();
 function Dashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [settingsTab, setSettingsTab] = useState('General');
-  const [theme, setTheme] = useState('default');
   const [isSportsOpen, setIsSportsOpen] = useState(false);
   const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
   const { data: stats } = useGetDashboardStats();
+  const { data: settings } = useGetSettings();
+  const theme = settings?.theme ?? 'default';
 
   return (
     <div className={`absolute inset-0 h-screen w-full overflow-hidden bg-theme-bg-main ${theme === 'default' ? '' : `theme-${theme}`}`}>
@@ -567,11 +569,11 @@ function Dashboard() {
             ) : activeTab === 'birthdays_anniversaries' ? (
               <BirthdaysAnniversaries />
             ) : activeTab === 'group-class-bill' ? (
-              <GroupClassBill />
+              <GroupClassBill onNavigate={setActiveTab} />
             ) : activeTab === 'pos' ? (
               <POSPortal />
             ) : activeTab === 'sports-bill' ? (
-              <SportsBill />
+              <SportsBill onNavigate={setActiveTab} />
             ) : activeTab === 'sports-history' ? (
               <SportsBillingHistory />
             ) : activeTab === 'sports-clients' ? (
@@ -586,274 +588,23 @@ function Dashboard() {
               <AttendanceReport />
             ) : (
               <div className="mt-4 max-w-7xl mx-auto w-full">
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold tracking-tight text-on-surface font-headline">Software Settings</h2>
-                  <p className="text-on-surface-variant text-sm mt-1">Configure global application behavior and business identities.</p>
-                </div>
-                <div className="flex items-center gap-8 border-b border-outline-variant/15 mb-8 overflow-x-auto pb-px">
-                  {['General', 'Theme', 'Billing', 'Notifications', 'Integrations', 'Advanced'].map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setSettingsTab(tab)}
-                      className={`px-1 py-3 text-sm whitespace-nowrap transition-colors ${settingsTab === tab ? 'font-semibold text-primary border-b-2 border-primary' : 'font-medium text-on-surface-variant hover:text-on-surface'}`}
-                    >
-                      {tab}
-                    </button>
-                  ))}
-                </div>
-
-                {settingsTab === 'General' && (
-                  <div className="grid grid-cols-12 gap-6 pb-20">
-                    <div className="col-span-12 lg:col-span-8 space-y-6">
-                      <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-black/5">
-                        <div className="flex items-center gap-2 mb-6">
-                          <span className="material-symbols-outlined text-primary">branding_watermark</span>
-                          <h3 className="text-sm font-semibold uppercase tracking-wider text-on-surface-variant">GYM BRANDING</h3>
-                        </div>
-                        <div className="grid grid-cols-2 gap-6">
-                          <div className="col-span-2">
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Gym Name</label>
-                            <input className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm focus:ring-2 focus:ring-primary/10 transition-all outline-none" type="text" defaultValue="FitOps Pro Premium" />
-                          </div>
-                          <div className="space-y-4">
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">Logo Upload</label>
-                            <div className="h-32 rounded-xl border-2 border-dashed border-outline-variant/20 flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container-lowest transition-colors cursor-pointer">
-                              <span className="material-symbols-outlined text-outline-variant mb-2">upload_file</span>
-                              <span className="text-xs text-on-surface-variant">PNG, SVG (Max 2MB)</span>
-                            </div>
-                          </div>
-                          <div className="space-y-4">
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">Stamp/Seal Upload</label>
-                            <div className="h-32 rounded-xl border-2 border-dashed border-outline-variant/20 flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container-lowest transition-colors cursor-pointer">
-                              <span className="material-symbols-outlined text-outline-variant mb-2">approval</span>
-                              <span className="text-xs text-on-surface-variant">Official Seal Image</span>
-                            </div>
-                          </div>
-                          <div className="col-span-2">
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Owner Signature</label>
-                            <div className="h-24 bg-surface-container-low rounded-xl border border-outline-variant/10 diagonal-stripe relative overflow-hidden">
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <button className="bg-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm border border-outline-variant/20">Draw Signature</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </section>
-                      <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-black/5">
-                        <div className="flex items-center gap-2 mb-6">
-                          <span className="material-symbols-outlined text-primary">location_on</span>
-                          <h3 className="text-sm font-semibold uppercase tracking-wider text-on-surface-variant">BRANCH DETAILS</h3>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="col-span-2">
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Address</label>
-                            <textarea className="w-full p-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary/20" rows={2} defaultValue="742 Evergreen Terrace, Downtown District, Suite 405"></textarea>
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Phone</label>
-                            <input className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm" type="text" defaultValue="+1 (555) 012-3456" />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Email</label>
-                            <input className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm" type="email" defaultValue="contact@fitopspro.com" />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">GST Number</label>
-                            <input className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm" type="text" defaultValue="22AAAAA0000A1Z5" />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Website URL</label>
-                            <input className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm" type="text" defaultValue="https://fitopspro.com" />
-                          </div>
-                        </div>
-                      </section>
-                      <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-black/5">
-                        <div className="flex items-center gap-2 mb-6">
-                          <span className="material-symbols-outlined text-primary">receipt_long</span>
-                          <h3 className="text-sm font-semibold uppercase tracking-wider text-on-surface-variant">BILLING CONFIGURATION</h3>
-                        </div>
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Invoice Prefix</label>
-                            <input className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm" type="text" defaultValue="INV-" />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Number Format</label>
-                            <input className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm" type="text" defaultValue="0000" />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Default Tax Rate</label>
-                            <div className="relative">
-                              <input className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm pr-8" type="text" defaultValue="18" />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-on-surface-variant">%</span>
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Tax Type</label>
-                            <select className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm" defaultValue="Inclusive">
-                              <option value="Exclusive">Exclusive</option>
-                              <option value="Inclusive">Inclusive</option>
-                            </select>
-                          </div>
-                        </div>
-                      </section>
-                    </div>
-                    <div className="col-span-12 lg:col-span-4 space-y-6">
-                      <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-black/5">
-                        <div className="flex items-center gap-2 mb-6">
-                          <span className="material-symbols-outlined text-primary">language</span>
-                          <h3 className="text-sm font-semibold uppercase tracking-wider text-on-surface-variant">LOCALIZATION</h3>
-                        </div>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Currency</label>
-                            <select className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm" defaultValue="INR (₹) - Indian Rupee">
-                              <option>INR (₹) - Indian Rupee</option>
-                              <option>USD ($) - US Dollar</option>
-                              <option>EUR (€) - Euro</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Timezone</label>
-                            <select className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm" defaultValue="(GMT+05:30) Chennai, Kolkata">
-                              <option>(GMT+05:30) Chennai, Kolkata</option>
-                              <option>(GMT+00:00) UTC</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Date Format</label>
-                            <select className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm" defaultValue="DD/MM/YYYY">
-                              <option>DD/MM/YYYY</option>
-                              <option>MM/DD/YYYY</option>
-                              <option>YYYY-MM-DD</option>
-                            </select>
-                          </div>
-                        </div>
-                      </section>
-                      <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-black/5">
-                        <div className="flex items-center gap-2 mb-6">
-                          <span className="material-symbols-outlined text-primary">card_membership</span>
-                          <h3 className="text-sm font-semibold uppercase tracking-wider text-on-surface-variant">REWARD POINTS</h3>
-                        </div>
-                        <div className="space-y-4">
-                          <div className="p-3 bg-tertiary-container/30 rounded-lg border border-tertiary/10">
-                            <label className="block text-[11px] font-bold text-on-tertiary-fixed-variant uppercase tracking-widest mb-2">Points per ₹100 spent</label>
-                            <input className="w-full h-9 px-3 bg-white border border-tertiary/20 rounded-md text-sm font-semibold" type="number" defaultValue="5" />
-                          </div>
-                          <div className="p-3 bg-secondary-container/30 rounded-lg border border-secondary/10">
-                            <label className="block text-[11px] font-bold text-on-secondary-fixed-variant uppercase tracking-widest mb-2">Redemption Rate (1 Pt = ₹)</label>
-                            <input className="w-full h-9 px-3 bg-white border border-secondary/20 rounded-md text-sm font-semibold" step="0.1" type="number" defaultValue="0.5" />
-                          </div>
-                        </div>
-                      </section>
-                      <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-black/5">
-                        <div className="flex items-center gap-2 mb-6">
-                          <span className="material-symbols-outlined text-primary">notification_important</span>
-                          <h3 className="text-sm font-semibold uppercase tracking-wider text-on-surface-variant">ALERTS</h3>
-                        </div>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Renewal Reminder (Days)</label>
-                            <input className="w-full h-2 bg-surface-container-low rounded-lg appearance-none cursor-pointer accent-primary" max="30" min="1" type="range" defaultValue="7" />
-                            <div className="flex justify-between text-[10px] text-on-surface-variant mt-1 font-bold">
-                              <span>1 DAY</span>
-                              <span className="text-primary">7 DAYS</span>
-                              <span>30 DAYS</span>
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Inconsistency Threshold</label>
-                            <div className="flex items-center gap-3">
-                              <input className="w-20 h-9 px-3 bg-surface-container-low border border-outline-variant/20 rounded-md text-sm" type="number" defaultValue="3" />
-                              <span className="text-xs text-on-surface-variant italic">visits missed / week</span>
-                            </div>
-                          </div>
-                        </div>
-                      </section>
-                      <section className="bg-surface-container-lowest rounded-xl p-6 shadow-sm ring-1 ring-black/5">
-                        <div className="flex items-center gap-2 mb-6">
-                          <span className="material-symbols-outlined text-primary">extension</span>
-                          <h3 className="text-sm font-semibold uppercase tracking-wider text-on-surface-variant">MODULE TOGGLES</h3>
-                        </div>
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between p-3 rounded-lg bg-primary-container/5">
-                            <div className="flex items-center gap-3">
-                              <span className="material-symbols-outlined text-primary text-xl">psychology</span>
-                              <div>
-                                <p className="text-xs font-bold text-on-surface">AI Body Analysis</p>
-                                <p className="text-[10px] text-on-surface-variant">Automated BMI &amp; posture scan</p>
-                              </div>
-                            </div>
-                            <div className="w-10 h-5 bg-primary rounded-full relative cursor-pointer">
-                              <div className="absolute right-1 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full"></div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between p-3 rounded-lg bg-surface-container-low">
-                            <div className="flex items-center gap-3">
-                              <span className="material-symbols-outlined text-on-surface-variant text-xl">forum</span>
-                              <div>
-                                <p className="text-xs font-bold text-on-surface">WhatsApp Chatbot</p>
-                                <p className="text-[10px] text-on-surface-variant">Automated member responses</p>
-                              </div>
-                            </div>
-                            <div className="w-10 h-5 bg-outline-variant/30 rounded-full relative cursor-pointer">
-                              <div className="absolute left-1 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </section>
-                    </div>
-                    <div className="col-span-12 mt-6 flex justify-between items-center p-6 bg-surface-container-lowest rounded-xl border border-primary/10 shadow-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="bg-secondary-container p-2 rounded-lg">
-                          <span className="material-symbols-outlined text-primary">info</span>
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-on-surface">Review all changes before saving</p>
-                          <p className="text-xs text-on-surface-variant">Last backup taken 4 hours ago.</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-4">
-                        <button className="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors rounded-lg">Reset to Defaults</button>
-                        <button className="px-8 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-primary to-primary-container rounded-lg shadow-md hover:scale-[1.02] transition-transform">Save Settings</button>
-                      </div>
-                    </div>
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-bold tracking-tight text-on-surface font-headline">Software Settings</h2>
+                    <p className="text-on-surface-variant text-sm mt-1">Configure global application behavior and business identities.</p>
                   </div>
-                )}
-
-                {settingsTab === 'Theme' && (
-                  <div className="bg-theme-bg-card rounded-[20px] p-6 shadow-sm border border-theme-border">
-                    <h3 className="text-lg font-semibold text-theme-text-main mb-6">Theme Customization</h3>
-                    <div className="flex flex-col w-full h-[65vh] overflow-y-auto pr-4 custom-scrollbar">
-                      <ThemePreviewCard
-                        id="default" name="Skyline Glass" isActive={theme === 'default'} onSelect={setTheme}
-                        colors={{ primary: '#1ca1f1', secondary: '#bae6fd', tertiary: '#f0f9ff', neutral: '#1f2937', bgCards: '#f0f9ff' }}
-                        hex={{ primary: '#1CA1F1', secondary: '#BAE6FD', tertiary: '#F0F9FF', neutral: '#1F2937' }}
-                      />
-                      <ThemePreviewCard
-                        id="verdant" name="Verdant Core" isActive={theme === 'verdant'} onSelect={setTheme}
-                        colors={{ primary: '#16a34a', secondary: '#bbf7d0', tertiary: '#f0fdf4', neutral: '#14532d', bgCards: '#f0fdf4' }}
-                        hex={{ primary: '#16A34A', secondary: '#BBF7D0', tertiary: '#F0FDF4', neutral: '#14532D' }}
-                      />
-                      <ThemePreviewCard
-                        id="purple" name="Amethyst Glow" isActive={theme === 'purple'} onSelect={setTheme}
-                        colors={{ primary: '#a855f7', secondary: '#e9d5ff', tertiary: '#faf5ff', neutral: '#3b0764', bgCards: '#faf5ff' }}
-                        hex={{ primary: '#A855F7', secondary: '#E9D5FF', tertiary: '#FAF5FF', neutral: '#3B0764' }}
-                      />
-                      <ThemePreviewCard
-                        id="yellow" name="Amber Dawn" isActive={theme === 'yellow'} onSelect={setTheme}
-                        colors={{ primary: '#eab308', secondary: '#fef08a', tertiary: '#fefce8', neutral: '#713f12', bgCards: '#fefce8' }}
-                        hex={{ primary: '#EAB308', secondary: '#FEF08A', tertiary: '#FEFCE8', neutral: '#713F12' }}
-                      />
-                      <ThemePreviewCard
-                        id="dark" name="Obsidian Night" isActive={theme === 'dark'} onSelect={setTheme}
-                        colors={{ primary: '#3b82f6', secondary: '#1e3a8a', tertiary: '#0f172a', neutral: '#f8fafc', bgCards: '#f8fafc' }}
-                        hex={{ primary: '#3B82F6', secondary: '#1E3A8A', tertiary: '#0F172A', neutral: '#F8FAFC' }}
-                      />
-                    </div>
+                  <div className="flex items-center gap-8 border-b border-outline-variant/15 mb-8 overflow-x-auto pb-px">
+                    {['General', 'Theme'].map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setSettingsTab(tab)}
+                        className={`px-1 py-3 text-sm whitespace-nowrap transition-colors ${settingsTab === tab ? 'font-semibold text-primary border-b-2 border-primary' : 'font-medium text-on-surface-variant hover:text-on-surface'}`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
                   </div>
-                )}
-              </div>
+                  <SettingsPanel tab={settingsTab} />
+                </div>
             )}
           </div>
         </main>

@@ -76,6 +76,10 @@ router.post("/inquiries/:id/convert", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Inquiry not found" });
     return;
   }
+  if (inq.status === "converted") {
+    res.status(409).json({ error: "Inquiry already converted" });
+    return;
+  }
   const expiry = new Date();
   expiry.setMonth(expiry.getMonth() + 1);
   const [member] = await db

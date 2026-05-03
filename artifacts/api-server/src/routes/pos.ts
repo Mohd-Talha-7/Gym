@@ -42,6 +42,16 @@ router.post("/pos/sales", async (req, res): Promise<void> => {
     res.status(400).json({ error: `Product ${missing.productId} not found` });
     return;
   }
+  // Reject oversell: any item exceeding stock fails the entire transaction.
+  for (const i of parsed.data.items) {
+    const p = productMap.get(i.productId)!;
+    if (i.quantity > p.stock) {
+      res.status(400).json({
+        error: `Insufficient stock for ${p.name}: requested ${i.quantity}, available ${p.stock}`,
+      });
+      return;
+    }
+  }
   const items = parsed.data.items.map((i) => {
     const p = productMap.get(i.productId)!;
     return { productId: p.id, name: p.name, quantity: i.quantity, price: p.price };

@@ -70,6 +70,28 @@ router.post("/bills", async (req, res): Promise<void> => {
   });
 });
 
+router.delete("/bills/:id", async (req, res): Promise<void> => {
+  const id = String(req.params.id);
+  const [existing] = await db.select().from(billsTable).where(eq(billsTable.id, id));
+  if (!existing) {
+    res.sendStatus(204);
+    return;
+  }
+  const outstanding = existing.amount - existing.paid;
+  await db.delete(billsTable).where(eq(billsTable.id, id));
+  const [member] = await db
+    .select()
+    .from(membersTable)
+    .where(eq(membersTable.id, existing.memberId));
+  if (member) {
+    await db
+      .update(membersTable)
+      .set({ balanceDue: Math.max(0, member.balanceDue - outstanding) })
+      .where(eq(membersTable.id, member.id));
+  }
+  res.sendStatus(204);
+});
+
 router.patch("/bills/:id", async (req, res): Promise<void> => {
   const id = String(req.params.id);
   const parsed = UpdateBillBody.safeParse(req.body);
@@ -82,10 +104,10 @@ router.patch("/bills/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Bill not found" });
     return;
   }
-  const updates = { ...parsed.data };
-  if (updates.paid != null) {
-    updates.status = updates.paid >= existing.amount ? "paid" : updates.paid > 0 ? "partial" : "pending";
-  }
+  const updates: Record<string, unknown> = { ...parsed.data };
+  const nextAmount = existing.amount;
+  const nextPaid = parsed.data.paid ?? existing.paid;
+  updates.status = nextPaid >= nextAmount ? "paid" : nextPaid > 0 ? "partial" : "pending";
   const [row] = await db
     .update(billsTable)
     .set(updates)
@@ -96,7 +118,7 @@ router.patch("/bills/:id", async (req, res): Promise<void> => {
     .from(membersTable)
     .where(eq(membersTable.id, row.memberId));
   // Recompute member balance: subtract previous outstanding, add new outstanding.
-  if (member && updates.paid != null) {
+  if (member) {
     const previousOutstanding = existing.amount - existing.paid;
     const newOutstanding = row.amount - row.paid;
     const newBalance = Math.max(0, member.balanceDue - previousOutstanding + newOutstanding);
