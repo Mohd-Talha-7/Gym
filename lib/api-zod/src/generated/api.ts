@@ -290,6 +290,18 @@ export const CreateMemberNoteBody = zod.object({
   author: zod.string().nullish(),
 });
 
+export const CreateMemberDocumentParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const CreateMemberDocumentBody = zod.object({
+  name: zod.string(),
+  type: zod.string(),
+  status: zod.string().nullish(),
+  uploadedBy: zod.string().nullish(),
+  note: zod.string().nullish(),
+});
+
 export const ListMemberDocumentsParams = zod.object({
   id: zod.coerce.string(),
 });
@@ -307,6 +319,28 @@ export const ListMemberDocumentsResponseItem = zod.object({
 export const ListMemberDocumentsResponse = zod.array(
   ListMemberDocumentsResponseItem,
 );
+
+export const CreateMemberWorkoutPlanParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const CreateMemberWorkoutPlanBody = zod.object({
+  name: zod.string(),
+  weeks: zod.string(),
+  active: zod.boolean().nullish(),
+  trainerNote: zod.string(),
+  days: zod.array(
+    zod.object({
+      day: zod.string(),
+      exercises: zod.array(
+        zod.object({
+          name: zod.string(),
+          setsReps: zod.string(),
+        }),
+      ),
+    }),
+  ),
+});
 
 export const ListMemberWorkoutPlansParams = zod.object({
   id: zod.coerce.string(),
@@ -334,6 +368,29 @@ export const ListMemberWorkoutPlansResponseItem = zod.object({
 export const ListMemberWorkoutPlansResponse = zod.array(
   ListMemberWorkoutPlansResponseItem,
 );
+
+export const CreateMemberNutritionPlanParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const CreateMemberNutritionPlanBody = zod.object({
+  name: zod.string(),
+  calories: zod.number(),
+  active: zod.boolean().nullish(),
+  macros: zod.object({
+    protein: zod.string(),
+    carbs: zod.string(),
+    fats: zod.string(),
+  }),
+  meals: zod.array(
+    zod.object({
+      name: zod.string(),
+      time: zod.string(),
+      kcal: zod.number(),
+      description: zod.string(),
+    }),
+  ),
+});
 
 export const ListMemberNutritionPlansParams = zod.object({
   id: zod.coerce.string(),
@@ -617,6 +674,35 @@ export const ListPosProductsResponseItem = zod.object({
 });
 export const ListPosProductsResponse = zod.array(ListPosProductsResponseItem);
 
+export const CreatePosProductBody = zod.object({
+  name: zod.string(),
+  price: zod.number(),
+  category: zod.string(),
+  stock: zod.number(),
+  imageUrl: zod.string().nullish(),
+});
+
+export const UpdatePosProductParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdatePosProductBody = zod.object({
+  name: zod.string().optional(),
+  price: zod.number().optional(),
+  category: zod.string().optional(),
+  stock: zod.number().optional(),
+  imageUrl: zod.string().nullish(),
+});
+
+export const UpdatePosProductResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  price: zod.number(),
+  category: zod.string(),
+  stock: zod.number(),
+  imageUrl: zod.string().nullish(),
+});
+
 export const ListPosSalesResponseItem = zod.object({
   id: zod.string(),
   memberId: zod.string().nullish(),
@@ -663,6 +749,17 @@ export const ListSportsClientsResponse = zod.array(
   ListSportsClientsResponseItem,
 );
 
+export const CreateSportsClientBody = zod.object({
+  memberId: zod.string().nullish(),
+  memberName: zod.string(),
+  sport: zod.string(),
+  packageName: zod.string(),
+  sessionsLeft: zod.number(),
+  expiryDate: zod.coerce.date(),
+  coach: zod.string(),
+  level: zod.string(),
+});
+
 export const ListSportsPackagesResponseItem = zod.object({
   id: zod.string(),
   name: zod.string(),
@@ -674,6 +771,14 @@ export const ListSportsPackagesResponseItem = zod.object({
 export const ListSportsPackagesResponse = zod.array(
   ListSportsPackagesResponseItem,
 );
+
+export const CreateSportsPackageBody = zod.object({
+  name: zod.string(),
+  sport: zod.string(),
+  sessions: zod.number(),
+  price: zod.number(),
+  durationDays: zod.number(),
+});
 
 export const ListSportsBillsResponseItem = zod.object({
   id: zod.string(),

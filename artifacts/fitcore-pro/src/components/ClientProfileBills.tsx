@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { useListMemberBills } from '@workspace/api-client-react';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+    useListMemberBills,
+    useUpdateBill,
+    getListMemberBillsQueryKey,
+    getListBillsQueryKey,
+    getGetMemberQueryKey,
+    getGetCollectionProgressQueryKey,
+    getGetRevenueQueryKey,
+    getGetDashboardStatsQueryKey,
+} from '@workspace/api-client-react';
 import CreateMembershipBill from './CreateMembershipBill';
 import CreatePTBill from './CreatePTBill';
 
@@ -12,14 +22,71 @@ function fmtINR(paise: number) {
 }
 
 export default function ClientProfileBills({ memberId }: { memberId: string }) {
+    const qc = useQueryClient();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [activeModal, setActiveModal] = useState<'membership' | 'pt' | null>(null);
+    const [collectFor, setCollectFor] = useState<{ id: string; balance: number } | null>(null);
+    const [collectAmount, setCollectAmount] = useState('');
+    const [collectMode, setCollectMode] = useState('UPI');
     const { data: bills = [] } = useListMemberBills(memberId);
+    const updateBill = useUpdateBill({
+        mutation: {
+            onSuccess: () => {
+                qc.invalidateQueries({ queryKey: getListMemberBillsQueryKey(memberId) });
+                qc.invalidateQueries({ queryKey: getListBillsQueryKey() });
+                qc.invalidateQueries({ queryKey: getGetMemberQueryKey(memberId) });
+                qc.invalidateQueries({ queryKey: getGetCollectionProgressQueryKey() });
+                qc.invalidateQueries({ queryKey: getGetRevenueQueryKey() });
+                qc.invalidateQueries({ queryKey: getGetDashboardStatsQueryKey() });
+            },
+        },
+    });
+
+    const submitCollect = () => {
+        if (!collectFor) return;
+        const bill = bills.find((b) => b.id === collectFor.id);
+        if (!bill) return;
+        const additional = Math.round(Number(collectAmount || 0) * 100);
+        if (additional <= 0) return;
+        updateBill.mutate(
+            { id: collectFor.id, data: { paid: bill.paid + additional, paymentMode: collectMode } },
+            { onSuccess: () => { setCollectFor(null); setCollectAmount(''); } },
+        );
+    };
 
     return (
         <div className="bg-theme-bg-card rounded-xl shadow-sm border border-theme-border overflow-hidden">
             {activeModal === 'membership' && <CreateMembershipBill memberId={memberId} onClose={() => setActiveModal(null)} />}
             {activeModal === 'pt' && <CreatePTBill memberId={memberId} onClose={() => setActiveModal(null)} />}
+
+            {collectFor && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setCollectFor(null)}>
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md space-y-3" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="text-lg font-bold">Collect Payment</h2>
+                        <p className="text-sm text-theme-text-muted">Outstanding: <span className="font-bold text-theme-text-main">{fmtINR(collectFor.balance)}</span></p>
+                        <input
+                            type="number"
+                            placeholder="Amount in ₹"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                            value={collectAmount}
+                            onChange={(e) => setCollectAmount(e.target.value)}
+                        />
+                        <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" value={collectMode} onChange={(e) => setCollectMode(e.target.value)}>
+                            <option>UPI</option><option>Cash</option><option>Card</option><option>Bank Transfer</option>
+                        </select>
+                        <div className="flex gap-2 justify-end pt-2">
+                            <button className="px-4 py-2 text-sm" onClick={() => setCollectFor(null)}>Cancel</button>
+                            <button
+                                disabled={updateBill.isPending || !collectAmount}
+                                className="bg-theme-primary-main text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
+                                onClick={submitCollect}
+                            >
+                                {updateBill.isPending ? 'Saving…' : 'Record Payment'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="p-6 flex items-center justify-between border-b border-theme-border">
                 <h2 className="text-lg font-bold tracking-tight text-theme-text-main">Billing History</h2>
@@ -55,11 +122,12 @@ export default function ClientProfileBills({ memberId }: { memberId: string }) {
                             <th className="px-6 py-4">Amount</th>
                             <th className="px-6 py-4">Paid</th>
                             <th className="px-6 py-4">Status</th>
+                            <th className="px-6 py-4">Action</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-theme-border">
                         {bills.length === 0 && (
-                            <tr><td colSpan={6} className="px-6 py-12 text-center text-theme-text-muted">No bills yet for this member.</td></tr>
+                            <tr><td colSpan={7} className="px-6 py-12 text-center text-theme-text-muted">No bills yet for this member.</td></tr>
                         )}
                         {bills.map((b) => {
                             const isPaid = b.status === 'paid';
@@ -75,6 +143,16 @@ export default function ClientProfileBills({ memberId }: { memberId: string }) {
                                             <span className={`w-1.5 h-1.5 rounded-full ${isPaid ? 'bg-green-500' : 'bg-amber-500'}`}></span>
                                             <span className="capitalize">{b.status}</span>
                                         </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        {!isPaid && b.balance > 0 && (
+                                            <button
+                                                onClick={() => { setCollectFor({ id: b.id, balance: b.balance }); setCollectAmount(String(b.balance / 100)); }}
+                                                className="text-xs font-semibold text-theme-primary-main hover:underline"
+                                            >
+                                                Collect Payment
+                                            </button>
+                                        )}
                                     </td>
                                 </tr>
                             );

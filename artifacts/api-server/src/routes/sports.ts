@@ -11,7 +11,10 @@ import {
   ListSportsPackagesResponse,
   ListSportsBillsResponse,
   GetSportsReportResponse,
+  CreateSportsClientBody,
+  CreateSportsPackageBody,
 } from "@workspace/api-zod";
+import { makeId } from "../lib/ids";
 
 const router: IRouter = Router();
 
@@ -20,9 +23,35 @@ router.get("/sports/clients", async (_req, res): Promise<void> => {
   res.json(ListSportsClientsResponse.parse(rows));
 });
 
+router.post("/sports/clients", async (req, res): Promise<void> => {
+  const parsed = CreateSportsClientBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const [row] = await db
+    .insert(sportsClientsTable)
+    .values({ id: makeId("SC"), ...parsed.data })
+    .returning();
+  res.status(201).json(row);
+});
+
 router.get("/sports/packages", async (_req, res): Promise<void> => {
   const rows = await db.select().from(sportsPackagesTable);
   res.json(ListSportsPackagesResponse.parse(rows));
+});
+
+router.post("/sports/packages", async (req, res): Promise<void> => {
+  const parsed = CreateSportsPackageBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const [row] = await db
+    .insert(sportsPackagesTable)
+    .values({ id: makeId("SP"), ...parsed.data })
+    .returning();
+  res.status(201).json(row);
 });
 
 router.get("/sports/bills", async (_req, res): Promise<void> => {

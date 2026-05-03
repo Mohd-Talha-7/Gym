@@ -1,4 +1,10 @@
-import { useListMemberDocuments } from '@workspace/api-client-react';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+    useListMemberDocuments,
+    useCreateMemberDocument,
+    getListMemberDocumentsQueryKey,
+} from '@workspace/api-client-react';
 
 function fmtDate(d?: Date | string | null) {
     if (!d) return '—';
@@ -12,13 +18,54 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function ClientProfileDocuments({ memberId }: { memberId: string }) {
+    const qc = useQueryClient();
     const { data: docs = [] } = useListMemberDocuments(memberId);
+    const create = useCreateMemberDocument({
+        mutation: { onSuccess: () => qc.invalidateQueries({ queryKey: getListMemberDocumentsQueryKey(memberId) }) },
+    });
+    const [showAdd, setShowAdd] = useState(false);
+    const [form, setForm] = useState({ name: '', type: 'ID Proof', status: 'Pending', note: '' });
+
+    const submit = () => {
+        create.mutate(
+            { id: memberId, data: { name: form.name, type: form.type, status: form.status, uploadedBy: 'Reception', note: form.note || null } },
+            { onSuccess: () => { setShowAdd(false); setForm({ name: '', type: 'ID Proof', status: 'Pending', note: '' }); } },
+        );
+    };
 
     return (
         <div className="space-y-6 pb-24">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold tracking-tight text-theme-text-main">Documents ({docs.length})</h3>
+                <button
+                    onClick={() => setShowAdd(true)}
+                    className="bg-theme-primary-main hover:bg-theme-primary-hover text-white px-4 py-2 rounded-lg text-sm font-semibold"
+                >
+                    + Add Document
+                </button>
             </div>
+
+            {showAdd && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowAdd(false)}>
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md space-y-3" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="text-lg font-bold">Add Document</h2>
+                        <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" placeholder="Document name (e.g. Aadhaar Card)" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                        <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                            <option>ID Proof</option><option>Address Proof</option><option>Medical Certificate</option><option>Membership Agreement</option><option>Photo</option><option>Other</option>
+                        </select>
+                        <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+                            <option>Pending</option><option>Signed</option><option>Not Required</option>
+                        </select>
+                        <textarea className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" placeholder="Note (optional)" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+                        <div className="flex gap-2 justify-end pt-2">
+                            <button className="px-4 py-2 text-sm" onClick={() => setShowAdd(false)}>Cancel</button>
+                            <button disabled={create.isPending || !form.name} onClick={submit} className="bg-theme-primary-main text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50">
+                                {create.isPending ? 'Saving…' : 'Save'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {docs.length === 0 && (
                 <div className="bg-theme-bg-card rounded-xl border border-theme-border p-12 text-center">

@@ -5,6 +5,8 @@ import {
   ListPosProductsResponse,
   ListPosSalesResponse,
   CreatePosSaleBody,
+  CreatePosProductBody,
+  UpdatePosProductBody,
 } from "@workspace/api-zod";
 import { makeId } from "../lib/ids";
 
@@ -13,6 +15,38 @@ const router: IRouter = Router();
 router.get("/pos/products", async (_req, res): Promise<void> => {
   const rows = await db.select().from(posProductsTable);
   res.json(ListPosProductsResponse.parse(rows));
+});
+
+router.post("/pos/products", async (req, res): Promise<void> => {
+  const parsed = CreatePosProductBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const [row] = await db
+    .insert(posProductsTable)
+    .values({ id: makeId("PR"), ...parsed.data })
+    .returning();
+  res.status(201).json(row);
+});
+
+router.patch("/pos/products/:id", async (req, res): Promise<void> => {
+  const id = String(req.params.id);
+  const parsed = UpdatePosProductBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const [row] = await db
+    .update(posProductsTable)
+    .set(parsed.data)
+    .where(eq(posProductsTable.id, id))
+    .returning();
+  if (!row) {
+    res.status(404).json({ error: "Product not found" });
+    return;
+  }
+  res.json(row);
 });
 
 router.get("/pos/sales", async (_req, res): Promise<void> => {

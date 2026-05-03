@@ -487,3 +487,93 @@ export interface UpdateSettingsInput {
   currency?: string;
   logoUrl?: string;
 }
+
+export interface CreatePosProductInput {
+  name: string;
+  price: number;
+  category: string;
+  stock: number;
+  /** @nullable */
+  imageUrl?: string | null;
+}
+
+export interface UpdatePosProductInput {
+  name?: string;
+  price?: number;
+  category?: string;
+  stock?: number;
+  /** @nullable */
+  imageUrl?: string | null;
+}
+
+export interface CreateSportsClientInput {
+  /** @nullable */
+  memberId?: string | null;
+  memberName: string;
+  sport: string;
+  packageName: string;
+  sessionsLeft: number;
+  expiryDate: string;
+  coach: string;
+  level: string;
+}
+
+export interface CreateSportsPackageInput {
+  name: string;
+  sport: string;
+  sessions: number;
+  price: number;
+  durationDays: number;
+}
+
+export interface CreateMemberDocumentInput {
+  name: string;
+  type: string;
+  /** @nullable */
+  status?: string | null;
+  /** @nullable */
+  uploadedBy?: string | null;
+  /** @nullable */
+  note?: string | null;
+}
+
+export type CreateWorkoutPlanInputDaysItemExercisesItem = {
+  name: string;
+  setsReps: string;
+};
+
+export type CreateWorkoutPlanInputDaysItem = {
+  day: string;
+  exercises: CreateWorkoutPlanInputDaysItemExercisesItem[];
+};
+
+export interface CreateWorkoutPlanInput {
+  name: string;
+  weeks: string;
+  /** @nullable */
+  active?: boolean | null;
+  trainerNote: string;
+  days: CreateWorkoutPlanInputDaysItem[];
+}
+
+export type CreateNutritionPlanInputMacros = {
+  protein: string;
+  carbs: string;
+  fats: string;
+};
+
+export type CreateNutritionPlanInputMealsItem = {
+  name: string;
+  time: string;
+  kcal: number;
+  description: string;
+};
+
+export interface CreateNutritionPlanInput {
+  name: string;
+  calories: number;
+  /** @nullable */
+  active?: boolean | null;
+  macros: CreateNutritionPlanInputMacros;
+  meals: CreateNutritionPlanInputMealsItem[];
+}

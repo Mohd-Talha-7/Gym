@@ -27,9 +27,15 @@ import type {
   CreateBodyAnalysisInput,
   CreateFollowUpInput,
   CreateInquiryInput,
+  CreateMemberDocumentInput,
   CreateMemberInput,
   CreateMemberNoteInput,
+  CreateNutritionPlanInput,
+  CreatePosProductInput,
   CreatePosSaleInput,
+  CreateSportsClientInput,
+  CreateSportsPackageInput,
+  CreateWorkoutPlanInput,
   DashboardStats,
   FollowUp,
   HealthStatus,
@@ -53,6 +59,7 @@ import type {
   UpdateFollowUpInput,
   UpdateInquiryInput,
   UpdateMemberInput,
+  UpdatePosProductInput,
   UpdateSettingsInput,
   WorkoutPlan,
 } from "./api.schemas";
@@ -1494,6 +1501,88 @@ export const useCreateMemberNote = <
   return useMutation(getCreateMemberNoteMutationOptions(options));
 };
 
+export const getCreateMemberDocumentUrl = (id: string) => {
+  return `/api/members/${id}/documents`;
+};
+
+export const createMemberDocument = async (
+  id: string,
+  createMemberDocumentInput: CreateMemberDocumentInput,
+  options?: RequestInit,
+): Promise<MemberDocument> => {
+  return customFetch<MemberDocument>(getCreateMemberDocumentUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createMemberDocumentInput),
+  });
+};
+
+export const getCreateMemberDocumentMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMemberDocument>>,
+    TError,
+    { id: string; data: BodyType<CreateMemberDocumentInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createMemberDocument>>,
+  TError,
+  { id: string; data: BodyType<CreateMemberDocumentInput> },
+  TContext
+> => {
+  const mutationKey = ["createMemberDocument"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createMemberDocument>>,
+    { id: string; data: BodyType<CreateMemberDocumentInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return createMemberDocument(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateMemberDocumentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createMemberDocument>>
+>;
+export type CreateMemberDocumentMutationBody =
+  BodyType<CreateMemberDocumentInput>;
+export type CreateMemberDocumentMutationError = ErrorType<unknown>;
+
+export const useCreateMemberDocument = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMemberDocument>>,
+    TError,
+    { id: string; data: BodyType<CreateMemberDocumentInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createMemberDocument>>,
+  TError,
+  { id: string; data: BodyType<CreateMemberDocumentInput> },
+  TContext
+> => {
+  return useMutation(getCreateMemberDocumentMutationOptions(options));
+};
+
 export const getListMemberDocumentsUrl = (id: string) => {
   return `/api/members/${id}/documents`;
 };
@@ -1573,6 +1662,88 @@ export function useListMemberDocuments<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+export const getCreateMemberWorkoutPlanUrl = (id: string) => {
+  return `/api/members/${id}/workout-plans`;
+};
+
+export const createMemberWorkoutPlan = async (
+  id: string,
+  createWorkoutPlanInput: CreateWorkoutPlanInput,
+  options?: RequestInit,
+): Promise<WorkoutPlan> => {
+  return customFetch<WorkoutPlan>(getCreateMemberWorkoutPlanUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createWorkoutPlanInput),
+  });
+};
+
+export const getCreateMemberWorkoutPlanMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMemberWorkoutPlan>>,
+    TError,
+    { id: string; data: BodyType<CreateWorkoutPlanInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createMemberWorkoutPlan>>,
+  TError,
+  { id: string; data: BodyType<CreateWorkoutPlanInput> },
+  TContext
+> => {
+  const mutationKey = ["createMemberWorkoutPlan"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createMemberWorkoutPlan>>,
+    { id: string; data: BodyType<CreateWorkoutPlanInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return createMemberWorkoutPlan(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateMemberWorkoutPlanMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createMemberWorkoutPlan>>
+>;
+export type CreateMemberWorkoutPlanMutationBody =
+  BodyType<CreateWorkoutPlanInput>;
+export type CreateMemberWorkoutPlanMutationError = ErrorType<unknown>;
+
+export const useCreateMemberWorkoutPlan = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMemberWorkoutPlan>>,
+    TError,
+    { id: string; data: BodyType<CreateWorkoutPlanInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createMemberWorkoutPlan>>,
+  TError,
+  { id: string; data: BodyType<CreateWorkoutPlanInput> },
+  TContext
+> => {
+  return useMutation(getCreateMemberWorkoutPlanMutationOptions(options));
+};
 
 export const getListMemberWorkoutPlansUrl = (id: string) => {
   return `/api/members/${id}/workout-plans`;
@@ -1654,6 +1825,88 @@ export function useListMemberWorkoutPlans<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+export const getCreateMemberNutritionPlanUrl = (id: string) => {
+  return `/api/members/${id}/nutrition-plans`;
+};
+
+export const createMemberNutritionPlan = async (
+  id: string,
+  createNutritionPlanInput: CreateNutritionPlanInput,
+  options?: RequestInit,
+): Promise<NutritionPlan> => {
+  return customFetch<NutritionPlan>(getCreateMemberNutritionPlanUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createNutritionPlanInput),
+  });
+};
+
+export const getCreateMemberNutritionPlanMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMemberNutritionPlan>>,
+    TError,
+    { id: string; data: BodyType<CreateNutritionPlanInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createMemberNutritionPlan>>,
+  TError,
+  { id: string; data: BodyType<CreateNutritionPlanInput> },
+  TContext
+> => {
+  const mutationKey = ["createMemberNutritionPlan"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createMemberNutritionPlan>>,
+    { id: string; data: BodyType<CreateNutritionPlanInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return createMemberNutritionPlan(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateMemberNutritionPlanMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createMemberNutritionPlan>>
+>;
+export type CreateMemberNutritionPlanMutationBody =
+  BodyType<CreateNutritionPlanInput>;
+export type CreateMemberNutritionPlanMutationError = ErrorType<unknown>;
+
+export const useCreateMemberNutritionPlan = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMemberNutritionPlan>>,
+    TError,
+    { id: string; data: BodyType<CreateNutritionPlanInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createMemberNutritionPlan>>,
+  TError,
+  { id: string; data: BodyType<CreateNutritionPlanInput> },
+  TContext
+> => {
+  return useMutation(getCreateMemberNutritionPlanMutationOptions(options));
+};
 
 export const getListMemberNutritionPlansUrl = (id: string) => {
   return `/api/members/${id}/nutrition-plans`;
@@ -3012,6 +3265,167 @@ export function useListPosProducts<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
+export const getCreatePosProductUrl = () => {
+  return `/api/pos/products`;
+};
+
+export const createPosProduct = async (
+  createPosProductInput: CreatePosProductInput,
+  options?: RequestInit,
+): Promise<PosProduct> => {
+  return customFetch<PosProduct>(getCreatePosProductUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createPosProductInput),
+  });
+};
+
+export const getCreatePosProductMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createPosProduct>>,
+    TError,
+    { data: BodyType<CreatePosProductInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createPosProduct>>,
+  TError,
+  { data: BodyType<CreatePosProductInput> },
+  TContext
+> => {
+  const mutationKey = ["createPosProduct"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createPosProduct>>,
+    { data: BodyType<CreatePosProductInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createPosProduct(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreatePosProductMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createPosProduct>>
+>;
+export type CreatePosProductMutationBody = BodyType<CreatePosProductInput>;
+export type CreatePosProductMutationError = ErrorType<unknown>;
+
+export const useCreatePosProduct = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createPosProduct>>,
+    TError,
+    { data: BodyType<CreatePosProductInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createPosProduct>>,
+  TError,
+  { data: BodyType<CreatePosProductInput> },
+  TContext
+> => {
+  return useMutation(getCreatePosProductMutationOptions(options));
+};
+
+export const getUpdatePosProductUrl = (id: string) => {
+  return `/api/pos/products/${id}`;
+};
+
+export const updatePosProduct = async (
+  id: string,
+  updatePosProductInput: UpdatePosProductInput,
+  options?: RequestInit,
+): Promise<PosProduct> => {
+  return customFetch<PosProduct>(getUpdatePosProductUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updatePosProductInput),
+  });
+};
+
+export const getUpdatePosProductMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updatePosProduct>>,
+    TError,
+    { id: string; data: BodyType<UpdatePosProductInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updatePosProduct>>,
+  TError,
+  { id: string; data: BodyType<UpdatePosProductInput> },
+  TContext
+> => {
+  const mutationKey = ["updatePosProduct"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updatePosProduct>>,
+    { id: string; data: BodyType<UpdatePosProductInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updatePosProduct(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdatePosProductMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updatePosProduct>>
+>;
+export type UpdatePosProductMutationBody = BodyType<UpdatePosProductInput>;
+export type UpdatePosProductMutationError = ErrorType<unknown>;
+
+export const useUpdatePosProduct = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updatePosProduct>>,
+    TError,
+    { id: string; data: BodyType<UpdatePosProductInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updatePosProduct>>,
+  TError,
+  { id: string; data: BodyType<UpdatePosProductInput> },
+  TContext
+> => {
+  return useMutation(getUpdatePosProductMutationOptions(options));
+};
+
 export const getListPosSalesUrl = () => {
   return `/api/pos/sales`;
 };
@@ -3228,6 +3642,86 @@ export function useListSportsClients<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
+export const getCreateSportsClientUrl = () => {
+  return `/api/sports/clients`;
+};
+
+export const createSportsClient = async (
+  createSportsClientInput: CreateSportsClientInput,
+  options?: RequestInit,
+): Promise<SportsClient> => {
+  return customFetch<SportsClient>(getCreateSportsClientUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createSportsClientInput),
+  });
+};
+
+export const getCreateSportsClientMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createSportsClient>>,
+    TError,
+    { data: BodyType<CreateSportsClientInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createSportsClient>>,
+  TError,
+  { data: BodyType<CreateSportsClientInput> },
+  TContext
+> => {
+  const mutationKey = ["createSportsClient"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createSportsClient>>,
+    { data: BodyType<CreateSportsClientInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createSportsClient(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateSportsClientMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createSportsClient>>
+>;
+export type CreateSportsClientMutationBody = BodyType<CreateSportsClientInput>;
+export type CreateSportsClientMutationError = ErrorType<unknown>;
+
+export const useCreateSportsClient = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createSportsClient>>,
+    TError,
+    { data: BodyType<CreateSportsClientInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createSportsClient>>,
+  TError,
+  { data: BodyType<CreateSportsClientInput> },
+  TContext
+> => {
+  return useMutation(getCreateSportsClientMutationOptions(options));
+};
+
 export const getListSportsPackagesUrl = () => {
   return `/api/sports/packages`;
 };
@@ -3295,6 +3789,87 @@ export function useListSportsPackages<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+export const getCreateSportsPackageUrl = () => {
+  return `/api/sports/packages`;
+};
+
+export const createSportsPackage = async (
+  createSportsPackageInput: CreateSportsPackageInput,
+  options?: RequestInit,
+): Promise<SportsPackage> => {
+  return customFetch<SportsPackage>(getCreateSportsPackageUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createSportsPackageInput),
+  });
+};
+
+export const getCreateSportsPackageMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createSportsPackage>>,
+    TError,
+    { data: BodyType<CreateSportsPackageInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createSportsPackage>>,
+  TError,
+  { data: BodyType<CreateSportsPackageInput> },
+  TContext
+> => {
+  const mutationKey = ["createSportsPackage"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createSportsPackage>>,
+    { data: BodyType<CreateSportsPackageInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createSportsPackage(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateSportsPackageMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createSportsPackage>>
+>;
+export type CreateSportsPackageMutationBody =
+  BodyType<CreateSportsPackageInput>;
+export type CreateSportsPackageMutationError = ErrorType<unknown>;
+
+export const useCreateSportsPackage = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createSportsPackage>>,
+    TError,
+    { data: BodyType<CreateSportsPackageInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createSportsPackage>>,
+  TError,
+  { data: BodyType<CreateSportsPackageInput> },
+  TContext
+> => {
+  return useMutation(getCreateSportsPackageMutationOptions(options));
+};
 
 export const getListSportsBillsUrl = () => {
   return `/api/sports/bills`;

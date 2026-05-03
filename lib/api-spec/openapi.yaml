@@ -330,6 +330,27 @@ paths:
                 $ref: "#/components/schemas/MemberNote"
 
   /members/{id}/documents:
+    post:
+      operationId: createMemberDocument
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMemberDocumentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberDocument"
     get:
       operationId: listMemberDocuments
       tags: [members]
@@ -350,6 +371,27 @@ paths:
                   $ref: "#/components/schemas/MemberDocument"
 
   /members/{id}/workout-plans:
+    post:
+      operationId: createMemberWorkoutPlan
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkoutPlanInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkoutPlan"
     get:
       operationId: listMemberWorkoutPlans
       tags: [members]
@@ -370,6 +412,27 @@ paths:
                   $ref: "#/components/schemas/WorkoutPlan"
 
   /members/{id}/nutrition-plans:
+    post:
+      operationId: createMemberNutritionPlan
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNutritionPlanInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NutritionPlan"
     get:
       operationId: listMemberNutritionPlans
       tags: [members]
@@ -666,6 +729,45 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/PosProduct"
+    post:
+      operationId: createPosProduct
+      tags: [pos]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePosProductInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PosProduct"
+
+  /pos/products/{id}:
+    patch:
+      operationId: updatePosProduct
+      tags: [pos]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePosProductInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PosProduct"
 
   /pos/sales:
     get:
@@ -710,6 +812,22 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/SportsClient"
+    post:
+      operationId: createSportsClient
+      tags: [sports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSportsClientInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SportsClient"
 
   /sports/packages:
     get:
@@ -724,6 +842,22 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/SportsPackage"
+    post:
+      operationId: createSportsPackage
+      tags: [sports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSportsPackageInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SportsPackage"
 
   /sports/bills:
     get:
@@ -1304,3 +1438,104 @@ components:
         theme: { type: string }
         currency: { type: string }
         logoUrl: { type: string }
+
+    CreatePosProductInput:
+      type: object
+      required: [name, price, category, stock]
+      properties:
+        name: { type: string }
+        price: { type: integer }
+        category: { type: string }
+        stock: { type: integer }
+        imageUrl: { type: ["string", "null"] }
+
+    UpdatePosProductInput:
+      type: object
+      properties:
+        name: { type: string }
+        price: { type: integer }
+        category: { type: string }
+        stock: { type: integer }
+        imageUrl: { type: ["string", "null"] }
+
+    CreateSportsClientInput:
+      type: object
+      required: [memberName, sport, packageName, sessionsLeft, expiryDate, coach, level]
+      properties:
+        memberId: { type: ["string", "null"] }
+        memberName: { type: string }
+        sport: { type: string }
+        packageName: { type: string }
+        sessionsLeft: { type: integer }
+        expiryDate: { type: string, format: date-time }
+        coach: { type: string }
+        level: { type: string }
+
+    CreateSportsPackageInput:
+      type: object
+      required: [name, sport, sessions, price, durationDays]
+      properties:
+        name: { type: string }
+        sport: { type: string }
+        sessions: { type: integer }
+        price: { type: integer }
+        durationDays: { type: integer }
+
+    CreateMemberDocumentInput:
+      type: object
+      required: [name, type]
+      properties:
+        name: { type: string }
+        type: { type: string }
+        status: { type: ["string", "null"] }
+        uploadedBy: { type: ["string", "null"] }
+        note: { type: ["string", "null"] }
+
+    CreateWorkoutPlanInput:
+      type: object
+      required: [name, weeks, trainerNote, days]
+      properties:
+        name: { type: string }
+        weeks: { type: string }
+        active: { type: ["boolean", "null"] }
+        trainerNote: { type: string }
+        days:
+          type: array
+          items:
+            type: object
+            required: [day, exercises]
+            properties:
+              day: { type: string }
+              exercises:
+                type: array
+                items:
+                  type: object
+                  required: [name, setsReps]
+                  properties:
+                    name: { type: string }
+                    setsReps: { type: string }
+
+    CreateNutritionPlanInput:
+      type: object
+      required: [name, calories, macros, meals]
+      properties:
+        name: { type: string }
+        calories: { type: integer }
+        active: { type: ["boolean", "null"] }
+        macros:
+          type: object
+          required: [protein, carbs, fats]
+          properties:
+            protein: { type: string }
+            carbs: { type: string }
+            fats: { type: string }
+        meals:
+          type: array
+          items:
+            type: object
+            required: [name, time, kcal, description]
+            properties:
+              name: { type: string }
+              time: { type: string }
+              kcal: { type: integer }
+              description: { type: string }

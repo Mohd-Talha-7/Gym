@@ -3,7 +3,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
     useListPosProducts,
     useCreatePosSale,
+    useCreatePosProduct,
     getListPosSalesQueryKey,
+    getListPosProductsQueryKey,
 } from '@workspace/api-client-react';
 import { formatINR } from '@/lib/format';
 
@@ -11,12 +13,22 @@ export default function POSPortal() {
     const qc = useQueryClient();
     const { data: products = [], isLoading } = useListPosProducts();
     const createSale = useCreatePosSale({
-        mutation: { onSuccess: () => qc.invalidateQueries({ queryKey: getListPosSalesQueryKey() }) },
+        mutation: {
+            onSuccess: () => {
+                qc.invalidateQueries({ queryKey: getListPosSalesQueryKey() });
+                qc.invalidateQueries({ queryKey: getListPosProductsQueryKey() });
+            },
+        },
+    });
+    const createProduct = useCreatePosProduct({
+        mutation: { onSuccess: () => qc.invalidateQueries({ queryKey: getListPosProductsQueryKey() }) },
     });
     const [cart, setCart] = useState<Record<string, number>>({});
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('All');
     const [paymentMode, setPaymentMode] = useState('UPI');
+    const [showAdd, setShowAdd] = useState(false);
+    const [newProduct, setNewProduct] = useState({ name: '', category: 'Supplement', price: '', stock: '' });
 
     const categories = useMemo(() => ['All', ...Array.from(new Set(products.map((p) => p.category)))], [products]);
 
@@ -53,7 +65,42 @@ export default function POSPortal() {
             <div className="lg:col-span-2 space-y-4">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold text-theme-text-main tracking-tight">Point of Sale</h1>
+                    <button
+                        onClick={() => setShowAdd(true)}
+                        className="bg-theme-primary-main hover:bg-theme-primary-hover text-white px-4 py-2 rounded-lg text-sm font-semibold"
+                    >
+                        + New Product
+                    </button>
                 </div>
+
+                {showAdd && (
+                    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowAdd(false)}>
+                        <div className="bg-white rounded-2xl p-6 w-full max-w-md space-y-3" onClick={(e) => e.stopPropagation()}>
+                            <h2 className="text-lg font-bold">Add Product</h2>
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" placeholder="Product name" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
+                            <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" value={newProduct.category} onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}>
+                                <option>Supplement</option><option>Apparel</option><option>Equipment</option><option>Beverage</option><option>Snack</option>
+                            </select>
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" placeholder="Price (₹)" type="number" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
+                            <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" placeholder="Stock quantity" type="number" value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })} />
+                            <div className="flex gap-2 justify-end pt-2">
+                                <button className="px-4 py-2 text-sm" onClick={() => setShowAdd(false)}>Cancel</button>
+                                <button
+                                    disabled={createProduct.isPending || !newProduct.name || !newProduct.price}
+                                    className="bg-theme-primary-main text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
+                                    onClick={() => {
+                                        createProduct.mutate(
+                                            { data: { name: newProduct.name, category: newProduct.category, price: Math.round(Number(newProduct.price) * 100), stock: Number(newProduct.stock || 0) } },
+                                            { onSuccess: () => { setShowAdd(false); setNewProduct({ name: '', category: 'Supplement', price: '', stock: '' }); } },
+                                        );
+                                    }}
+                                >
+                                    {createProduct.isPending ? 'Saving…' : 'Save Product'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="bg-theme-bg-card border border-theme-border rounded-2xl p-4 shadow-sm flex gap-3">
                     <input

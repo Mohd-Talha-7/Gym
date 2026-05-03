@@ -27,6 +27,9 @@ import {
   ListMemberDocumentsResponse,
   ListMemberWorkoutPlansResponse,
   ListMemberNutritionPlansResponse,
+  CreateMemberDocumentBody,
+  CreateMemberWorkoutPlanBody,
+  CreateMemberNutritionPlanBody,
 } from "@workspace/api-zod";
 import { makeId } from "../lib/ids";
 
@@ -241,6 +244,28 @@ router.get("/members/:id/documents", async (req, res): Promise<void> => {
   res.json(ListMemberDocumentsResponse.parse(rows));
 });
 
+router.post("/members/:id/documents", async (req, res): Promise<void> => {
+  const id = String(req.params.id);
+  const parsed = CreateMemberDocumentBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const [row] = await db
+    .insert(memberDocumentsTable)
+    .values({
+      id: makeId("DOC"),
+      memberId: id,
+      name: parsed.data.name,
+      type: parsed.data.type,
+      status: parsed.data.status ?? "Pending",
+      uploadedBy: parsed.data.uploadedBy ?? "Staff",
+      note: parsed.data.note ?? null,
+    })
+    .returning();
+  res.status(201).json(row);
+});
+
 router.get("/members/:id/workout-plans", async (req, res): Promise<void> => {
   const id = String(req.params.id);
   const rows = await db
@@ -250,6 +275,28 @@ router.get("/members/:id/workout-plans", async (req, res): Promise<void> => {
   res.json(ListMemberWorkoutPlansResponse.parse(rows));
 });
 
+router.post("/members/:id/workout-plans", async (req, res): Promise<void> => {
+  const id = String(req.params.id);
+  const parsed = CreateMemberWorkoutPlanBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const [row] = await db
+    .insert(workoutPlansTable)
+    .values({
+      id: makeId("WP"),
+      memberId: id,
+      name: parsed.data.name,
+      weeks: parsed.data.weeks,
+      active: parsed.data.active ?? true,
+      trainerNote: parsed.data.trainerNote,
+      days: parsed.data.days,
+    })
+    .returning();
+  res.status(201).json(row);
+});
+
 router.get("/members/:id/nutrition-plans", async (req, res): Promise<void> => {
   const id = String(req.params.id);
   const rows = await db
@@ -257,6 +304,28 @@ router.get("/members/:id/nutrition-plans", async (req, res): Promise<void> => {
     .from(nutritionPlansTable)
     .where(eq(nutritionPlansTable.memberId, id));
   res.json(ListMemberNutritionPlansResponse.parse(rows));
+});
+
+router.post("/members/:id/nutrition-plans", async (req, res): Promise<void> => {
+  const id = String(req.params.id);
+  const parsed = CreateMemberNutritionPlanBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const [row] = await db
+    .insert(nutritionPlansTable)
+    .values({
+      id: makeId("NP"),
+      memberId: id,
+      name: parsed.data.name,
+      calories: parsed.data.calories,
+      active: parsed.data.active ?? true,
+      macros: parsed.data.macros,
+      meals: parsed.data.meals,
+    })
+    .returning();
+  res.status(201).json(row);
 });
 
 export default router;
