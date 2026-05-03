@@ -17,6 +17,11 @@ import GroupClassBill from '../components/GroupClassBill';
 import POSPortal from '../components/POSPortal';
 import SportsBill from '../components/SportsBill';
 import SportsBillingHistory from '../components/SportsBillingHistory';
+import SportsClients from '../components/SportsClients';
+import SportsPackages from '../components/SportsPackages';
+import SportsReport from '../components/SportsReport';
+import MarkAttendance from '../components/MarkAttendance';
+import AttendanceReport from '../components/AttendanceReport';
 import {
   Activity, LayoutDashboard, UserCheck, Calendar, FileText, Users, MessageSquare, HelpCircle, Search, Mail, Bell, ChevronDown, Plus, Upload, ArrowUpRight, UserPlus, CreditCard, CalendarPlus, Video, DollarSign, Settings, Pause, Square, ChevronUp, ClipboardList, RefreshCw, UserMinus, Cake, Gift, CalendarDays, CheckSquare, Medal, Package, Wallet, BarChart2, Contact, GraduationCap, Shield, Smartphone, Eye, LineChart
 } from 'lucide-react';
@@ -26,6 +31,7 @@ export default function Dashboard() {
   const [settingsTab, setSettingsTab] = useState('General');
   const [theme, setTheme] = useState('default');
   const [isSportsOpen, setIsSportsOpen] = useState(false);
+  const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
 
   return (
     <div className={`absolute inset-0 h-screen w-full overflow-hidden bg-theme-bg-main ${theme === 'default' ? '' : `theme-${theme}`}`}>
@@ -62,10 +68,9 @@ export default function Dashboard() {
               <ul className="space-y-0.5">
                 {[
                   { name: 'Follow-ups', icon: ClipboardList, id: 'follow_ups' },
-                  { name: 'Upcoming Renewals', icon: RefreshCw, id: 'upcoming_renewals' },
-                  { name: 'Inconsistent Clients', icon: UserMinus, id: 'inconsistent_clients' },
-                  { name: 'Birthdays', icon: Cake, id: 'birthdays' },
-                  { name: 'Anniversary', icon: Gift, id: 'anniversary' },
+                  { name: 'Renewals', icon: RefreshCw, id: 'upcoming_renewals' },
+                  { name: 'Inconsistent', icon: UserMinus, id: 'inconsistent_clients' },
+                  { name: 'Birthdays & Anniversaries', icon: Cake, id: 'birthdays_anniversaries' },
                   { name: "Today's Schedule", icon: CalendarDays, id: 'schedule' },
                 ].map((item) => (
                   <li key={item.name}>
@@ -88,7 +93,6 @@ export default function Dashboard() {
                 {[
                   { name: 'Members', icon: Users, id: 'members' },
                   { name: 'Inquiries', icon: Search, id: 'inquiries' },
-                  { name: 'Attendance', icon: CheckSquare, id: 'attendance' },
                   { name: 'PT Schedule', icon: Calendar, id: 'pt-schedule' },
                   { name: 'Group Classes', icon: Activity, id: 'group-classes' },
                 ].map((item) => (
@@ -99,6 +103,37 @@ export default function Dashboard() {
                     </a>
                   </li>
                 ))}
+                <li>
+                  <button
+                    onClick={() => setIsAttendanceOpen(!isAttendanceOpen)}
+                    className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium transition-colors text-theme-text-muted hover:bg-theme-bg-main hover:text-theme-text-main rounded-lg ml-[3px]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <CheckSquare className="w-4 h-4" />
+                      Attendance
+                    </div>
+                    {isAttendanceOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+                  {isAttendanceOpen && (
+                    <ul className="mt-1 space-y-0.5">
+                      {[
+                        { name: 'Mark', icon: UserCheck, id: 'attendance-mark' },
+                        { name: 'Report', icon: BarChart2, id: 'attendance-report' },
+                      ].map((subItem) => (
+                        <li key={subItem.name}>
+                          <a
+                            className={`flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors ${activeTab === subItem.id ? 'bg-theme-sidebar-active-bg text-theme-sidebar-active-text border-l-[3px] border-theme-primary-main rounded-r-lg' : 'text-theme-text-muted hover:bg-theme-bg-main hover:text-theme-text-main rounded-lg pl-10'}`}
+                            href="#"
+                            onClick={(e) => { e.preventDefault(); setActiveTab(subItem.id); }}
+                          >
+                            <subItem.icon className="w-3.5 h-3.5" />
+                            {subItem.name}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
                 <li>
                   <button
                     onClick={() => setIsSportsOpen(!isSportsOpen)}
@@ -113,8 +148,11 @@ export default function Dashboard() {
                   {isSportsOpen && (
                     <ul className="mt-1 space-y-0.5">
                       {[
-                        { name: 'Sports Bill', icon: Wallet, id: 'sports-bill' },
-                        { name: 'Sports History', icon: BarChart2, id: 'sports-history' },
+                        { name: 'Clients', icon: Users, id: 'sports-clients' },
+                        { name: 'Packages', icon: Package, id: 'sports-packages' },
+                        { name: 'Bill', icon: Wallet, id: 'sports-bill' },
+                        { name: 'History', icon: BarChart2, id: 'sports-history' },
+                        { name: 'Report', icon: LineChart, id: 'sports-report' },
                       ].map((subItem) => (
                         <li key={subItem.name}>
                           <a
@@ -556,7 +594,7 @@ export default function Dashboard() {
               <AddClient onNavigate={setActiveTab} />
             ) : activeTab === 'members-detail' ? (
               <ClientProfile onNavigate={setActiveTab} />
-            ) : activeTab === 'birthdays' || activeTab === 'anniversary' ? (
+            ) : activeTab === 'birthdays_anniversaries' ? (
               <BirthdaysAnniversaries />
             ) : activeTab === 'group-class-bill' ? (
               <GroupClassBill />
@@ -566,6 +604,16 @@ export default function Dashboard() {
               <SportsBill />
             ) : activeTab === 'sports-history' ? (
               <SportsBillingHistory />
+            ) : activeTab === 'sports-clients' ? (
+              <SportsClients />
+            ) : activeTab === 'sports-packages' ? (
+              <SportsPackages />
+            ) : activeTab === 'sports-report' ? (
+              <SportsReport />
+            ) : activeTab === 'attendance-mark' ? (
+              <MarkAttendance />
+            ) : activeTab === 'attendance-report' ? (
+              <AttendanceReport />
             ) : (
               <div className="mt-4 max-w-7xl mx-auto w-full">
                 <div className="mb-8">
