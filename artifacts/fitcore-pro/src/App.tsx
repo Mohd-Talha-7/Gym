@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useGetDashboardStats } from '@workspace/api-client-react';
+import { useGetDashboardStats, useGetAttendanceAnalytics } from '@workspace/api-client-react';
 
 import FollowUps from '@/components/FollowUps';
 import UpcomingRenewals from '@/components/UpcomingRenewals';
@@ -44,6 +44,7 @@ function Dashboard() {
   const [isSportsOpen, setIsSportsOpen] = useState(false);
   const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
   const { data: stats } = useGetDashboardStats();
+  const { data: attendanceAnalytics } = useGetAttendanceAnalytics();
   const { data: settings } = useGetSettings();
   const theme = settings?.theme ?? 'default';
   const { data: todaySchedule = [] } = useGetTodaySchedule();
@@ -348,59 +349,25 @@ function Dashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
                   <div className="col-span-1 lg:col-span-2 bg-white rounded-[20px] p-4 shadow-sm border border-theme-border">
                     <h3 className="text-gray-800 font-semibold mb-3 text-sm">Attendance Analytics</h3>
-                    <div className="flex items-end justify-between pt-4 px-2 gap-2">
-                      <div className="flex flex-col items-center gap-1.5 flex-1">
-                        <div className="w-full max-w-[24px] h-16 rounded-full border border-theme-primary-main relative overflow-hidden bg-sky-50">
-                          <div className="absolute bottom-0 w-full h-[60%] bg-theme-primary-main rounded-b-full"></div>
-                        </div>
-                        <span className="text-[10px] text-gray-400 font-medium">M</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1.5 flex-1">
-                        <div className="w-full max-w-[24px] h-20 rounded-full border border-emerald-300 relative overflow-hidden bg-emerald-50">
-                          <div className="absolute bottom-0 w-full h-full striped-pattern rounded-full opacity-30"></div>
-                        </div>
-                        <span className="text-[10px] text-gray-400 font-medium">T</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1.5 flex-1">
-                        <div className="w-full max-w-[24px] h-24 rounded-full relative overflow-hidden bg-sky-500">
-                        </div>
-                        <span className="text-[10px] text-gray-800 font-bold">W</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1.5 flex-1">
-                        <div className="w-full max-w-[24px] h-16 rounded-full border border-sky-300 relative overflow-hidden bg-sky-50">
-                          <div className="absolute bottom-0 w-full h-[40%] striped-pattern-blue rounded-b-full"></div>
-                        </div>
-                        <span className="text-[10px] text-gray-400 font-medium">T</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1.5 flex-1">
-                        <div className="w-full max-w-[24px] h-14 rounded-full border border-sky-300 relative overflow-hidden bg-sky-50">
-                          <div className="absolute bottom-0 w-full h-[80%] striped-pattern-blue rounded-b-full"></div>
-                        </div>
-                        <span className="text-[10px] text-gray-400 font-medium">F</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1.5 flex-1">
-                        <div className="w-full max-w-[24px] h-16 rounded-full border border-sky-300 relative overflow-hidden bg-sky-50">
-                          <div className="absolute bottom-0 w-full h-[50%] bg-theme-primary-light rounded-b-full"></div>
-                        </div>
-                        <span className="text-[10px] text-gray-400 font-medium">S</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1.5 flex-1">
-                        <div className="w-full max-w-[24px] h-20 rounded-full border border-gray-300 relative overflow-hidden bg-gray-50">
-                          <div className="absolute bottom-0 w-full h-full striped-pattern rounded-full opacity-30"></div>
-                        </div>
-                        <span className="text-[10px] text-gray-400 font-medium">S</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1.5 flex-1">
-                        <div className="w-full max-w-[24px] h-16 rounded-full border border-sky-300 relative overflow-hidden bg-sky-50">
-                          <div className="absolute bottom-0 w-full h-[30%] striped-pattern-blue rounded-b-full"></div>
-                        </div>
-                        <span className="text-[10px] text-gray-400 font-medium">M</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1.5 flex-1">
-                        <div className="w-full max-w-[24px] h-20 rounded-full border border-sky-300 relative overflow-hidden bg-sky-50">
-                        </div>
-                        <span className="text-[10px] text-gray-400 font-medium">M</span>
-                      </div>
+                    <div className="flex items-end justify-between pt-4 px-2 gap-2 h-32">
+                      {(attendanceAnalytics?.days ?? []).map((d, i) => {
+                        const maxPct = Math.max(1, ...(attendanceAnalytics?.days ?? []).map((x) => x.percent));
+                        const isPeak = d.percent === maxPct && d.percent > 0;
+                        const heightPct = Math.max(6, Math.round((d.percent / Math.max(maxPct, 1)) * 100));
+                        return (
+                          <div key={i} className="flex flex-col items-center gap-1.5 flex-1" title={`${d.count} check-ins (${d.percent}%)`}>
+                            <div className={`w-full max-w-[24px] h-24 rounded-full border relative overflow-hidden ${isPeak ? 'bg-sky-500 border-sky-500' : 'border-sky-300 bg-sky-50'}`}>
+                              {!isPeak && (
+                                <div className="absolute bottom-0 w-full bg-theme-primary-main rounded-b-full" style={{ height: `${heightPct}%` }}></div>
+                              )}
+                            </div>
+                            <span className={`text-[10px] font-medium ${isPeak ? 'text-gray-800 font-bold' : 'text-gray-400'}`}>{d.label}</span>
+                          </div>
+                        );
+                      })}
+                      {(!attendanceAnalytics || attendanceAnalytics.days.length === 0) && (
+                        <div className="text-xs text-gray-400 italic flex-1 text-center">No attendance data yet</div>
+                      )}
                     </div>
                   </div>
                   <div className="col-span-1 bg-white rounded-[20px] p-4 shadow-sm border border-gray-100 flex flex-col justify-between">
