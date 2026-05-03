@@ -1,6 +1,5 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
   description: API specification
@@ -9,14 +8,22 @@ servers:
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: stats
+  - name: members
+  - name: inquiries
+  - name: followups
+  - name: renewals
+  - name: attendance
+  - name: bills
+  - name: pos
+  - name: sports
+  - name: settings
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +31,1276 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /stats/dashboard:
+    get:
+      operationId: getDashboardStats
+      tags: [stats]
+      summary: Dashboard summary statistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /stats/attendance-analytics:
+    get:
+      operationId: getAttendanceAnalytics
+      tags: [stats]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceAnalytics"
+
+  /stats/today-schedule:
+    get:
+      operationId: getTodaySchedule
+      tags: [stats]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScheduleItem"
+
+  /stats/collection-progress:
+    get:
+      operationId: getCollectionProgress
+      tags: [stats]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionProgress"
+
+  /stats/revenue:
+    get:
+      operationId: getRevenue
+      tags: [stats]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevenueSummary"
+
+  /members:
+    get:
+      operationId: listMembers
+      tags: [members]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+    post:
+      operationId: createMember
+      tags: [members]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMemberInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+
+  /members/inconsistent:
+    get:
+      operationId: listInconsistentMembers
+      tags: [members]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+
+  /members/celebrations:
+    get:
+      operationId: listCelebrations
+      tags: [members]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Celebration"
+
+  /members/{id}:
+    get:
+      operationId: getMember
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+    patch:
+      operationId: updateMember
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMemberInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+    delete:
+      operationId: deleteMember
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  /members/{id}/bills:
+    get:
+      operationId: listMemberBills
+      tags: [members, bills]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bill"
+
+  /members/{id}/attendance:
+    get:
+      operationId: listMemberAttendance
+      tags: [members, attendance]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+
+  /members/{id}/body-analysis:
+    get:
+      operationId: listMemberBodyAnalysis
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BodyAnalysis"
+    post:
+      operationId: createMemberBodyAnalysis
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBodyAnalysisInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BodyAnalysis"
+
+  /members/{id}/notes:
+    get:
+      operationId: listMemberNotes
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MemberNote"
+    post:
+      operationId: createMemberNote
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMemberNoteInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberNote"
+
+  /members/{id}/documents:
+    get:
+      operationId: listMemberDocuments
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MemberDocument"
+
+  /members/{id}/workout-plans:
+    get:
+      operationId: listMemberWorkoutPlans
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkoutPlan"
+
+  /members/{id}/nutrition-plans:
+    get:
+      operationId: listMemberNutritionPlans
+      tags: [members]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NutritionPlan"
+
+  /inquiries:
+    get:
+      operationId: listInquiries
+      tags: [inquiries]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Inquiry"
+    post:
+      operationId: createInquiry
+      tags: [inquiries]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateInquiryInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inquiry"
+
+  /inquiries/{id}:
+    get:
+      operationId: getInquiry
+      tags: [inquiries]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inquiry"
+    patch:
+      operationId: updateInquiry
+      tags: [inquiries]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateInquiryInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inquiry"
+    delete:
+      operationId: deleteInquiry
+      tags: [inquiries]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  /inquiries/{id}/convert:
+    post:
+      operationId: convertInquiry
+      tags: [inquiries]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+
+  /follow-ups:
+    get:
+      operationId: listFollowUps
+      tags: [followups]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FollowUp"
+    post:
+      operationId: createFollowUp
+      tags: [followups]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFollowUpInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowUp"
+
+  /follow-ups/{id}:
+    patch:
+      operationId: updateFollowUp
+      tags: [followups]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFollowUpInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowUp"
+    delete:
+      operationId: deleteFollowUp
+      tags: [followups]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  /renewals:
+    get:
+      operationId: listRenewals
+      tags: [renewals]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Renewal"
+
+  /attendance:
+    get:
+      operationId: listAttendance
+      tags: [attendance]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+    post:
+      operationId: markAttendance
+      tags: [attendance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MarkAttendanceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecord"
+
+  /bills:
+    get:
+      operationId: listBills
+      tags: [bills]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bill"
+    post:
+      operationId: createBill
+      tags: [bills]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBillInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bill"
+
+  /bills/{id}:
+    patch:
+      operationId: updateBill
+      tags: [bills]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBillInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bill"
+
+  /pos/products:
+    get:
+      operationId: listPosProducts
+      tags: [pos]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PosProduct"
+
+  /pos/sales:
+    get:
+      operationId: listPosSales
+      tags: [pos]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PosSale"
+    post:
+      operationId: createPosSale
+      tags: [pos]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePosSaleInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PosSale"
+
+  /sports/clients:
+    get:
+      operationId: listSportsClients
+      tags: [sports]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SportsClient"
+
+  /sports/packages:
+    get:
+      operationId: listSportsPackages
+      tags: [sports]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SportsPackage"
+
+  /sports/bills:
+    get:
+      operationId: listSportsBills
+      tags: [sports]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SportsBill"
+
+  /sports/report:
+    get:
+      operationId: getSportsReport
+      tags: [sports]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SportsReport"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSettingsInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    DashboardStats:
+      type: object
+      required: [totalMembers, activeMembers, expiredMembers, pendingPayments, totalChange, activeChange, expiredChange, pendingChange]
+      properties:
+        totalMembers: { type: integer }
+        activeMembers: { type: integer }
+        expiredMembers: { type: integer }
+        pendingPayments: { type: integer }
+        totalChange: { type: integer }
+        activeChange: { type: integer }
+        expiredChange: { type: integer }
+        pendingChange: { type: integer }
+
+    AttendanceAnalytics:
+      type: object
+      required: [days]
+      properties:
+        days:
+          type: array
+          items:
+            type: object
+            required: [label, count, percent]
+            properties:
+              label: { type: string }
+              count: { type: integer }
+              percent: { type: integer }
+
+    ScheduleItem:
+      type: object
+      required: [id, trainer, status, time, avatarUrl]
+      properties:
+        id: { type: string }
+        trainer: { type: string }
+        status: { type: string }
+        time: { type: string }
+        avatarUrl: { type: string }
+
+    CollectionProgress:
+      type: object
+      required: [percent, collected, target]
+      properties:
+        percent: { type: integer }
+        collected: { type: integer }
+        target: { type: integer }
+
+    RevenueSummary:
+      type: object
+      required: [revenue, growth, monthly]
+      properties:
+        revenue: { type: integer }
+        growth: { type: integer }
+        monthly:
+          type: array
+          items:
+            type: object
+            required: [month, value]
+            properties:
+              month: { type: string }
+              value: { type: integer }
+
+    Member:
+      type: object
+      required: [id, name, phone, status, plan, joinDate, expiryDate, gender, avatarUrl, balanceDue]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        phone: { type: string }
+        email: { type: ["string", "null"] }
+        status: { type: string }
+        plan: { type: string }
+        joinDate: { type: string, format: date-time }
+        expiryDate: { type: string, format: date-time }
+        gender: { type: string }
+        bloodGroup: { type: ["string", "null"] }
+        dob: { type: ["string", "null"], format: date-time }
+        address: { type: ["string", "null"] }
+        avatarUrl: { type: string }
+        balanceDue: { type: integer }
+        medicalHistory: { type: ["string", "null"] }
+        emergencyContact: { type: ["string", "null"] }
+
+    CreateMemberInput:
+      type: object
+      required: [name, phone, gender, plan]
+      properties:
+        name: { type: string }
+        phone: { type: string }
+        email: { type: ["string", "null"] }
+        gender: { type: string }
+        bloodGroup: { type: ["string", "null"] }
+        dob: { type: ["string", "null"], format: date-time }
+        address: { type: ["string", "null"] }
+        plan: { type: string }
+        medicalHistory: { type: ["string", "null"] }
+        emergencyContact: { type: ["string", "null"] }
+
+    UpdateMemberInput:
+      type: object
+      properties:
+        name: { type: string }
+        phone: { type: string }
+        email: { type: ["string", "null"] }
+        gender: { type: string }
+        bloodGroup: { type: ["string", "null"] }
+        dob: { type: ["string", "null"], format: date-time }
+        address: { type: ["string", "null"] }
+        plan: { type: string }
+        status: { type: string }
+        expiryDate: { type: string, format: date-time }
+        medicalHistory: { type: ["string", "null"] }
+        emergencyContact: { type: ["string", "null"] }
+
+    Celebration:
+      type: object
+      required: [id, name, type, date, phone, avatarUrl]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        type: { type: string }
+        date: { type: string }
+        phone: { type: string }
+        avatarUrl: { type: string }
+
+    Inquiry:
+      type: object
+      required: [id, name, phone, interest, source, status, inquiryDate, assignedTo]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        phone: { type: string }
+        email: { type: ["string", "null"] }
+        interest: { type: string }
+        source: { type: string }
+        status: { type: string }
+        inquiryDate: { type: string, format: date-time }
+        assignedTo: { type: string }
+        notes: { type: ["string", "null"] }
+
+    CreateInquiryInput:
+      type: object
+      required: [name, phone, interest, source]
+      properties:
+        name: { type: string }
+        phone: { type: string }
+        email: { type: ["string", "null"] }
+        interest: { type: string }
+        source: { type: string }
+        assignedTo: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+
+    UpdateInquiryInput:
+      type: object
+      properties:
+        name: { type: string }
+        phone: { type: string }
+        email: { type: ["string", "null"] }
+        interest: { type: string }
+        source: { type: string }
+        status: { type: string }
+        assignedTo: { type: string }
+        notes: { type: ["string", "null"] }
+
+    FollowUp:
+      type: object
+      required: [id, memberId, memberName, type, priority, scheduledFor, status, lastComment, phone]
+      properties:
+        id: { type: string }
+        memberId: { type: ["string", "null"] }
+        memberName: { type: string }
+        type: { type: string }
+        priority: { type: string }
+        scheduledFor: { type: string, format: date-time }
+        status: { type: string }
+        lastComment: { type: string }
+        phone: { type: string }
+
+    CreateFollowUpInput:
+      type: object
+      required: [memberName, type, priority, scheduledFor, phone]
+      properties:
+        memberId: { type: ["string", "null"] }
+        memberName: { type: string }
+        type: { type: string }
+        priority: { type: string }
+        scheduledFor: { type: string, format: date-time }
+        lastComment: { type: ["string", "null"] }
+        phone: { type: string }
+
+    UpdateFollowUpInput:
+      type: object
+      properties:
+        type: { type: string }
+        priority: { type: string }
+        scheduledFor: { type: string, format: date-time }
+        status: { type: string }
+        lastComment: { type: string }
+
+    Renewal:
+      type: object
+      required: [memberId, memberName, phone, plan, expiryDate, amountDue, daysLeft]
+      properties:
+        memberId: { type: string }
+        memberName: { type: string }
+        phone: { type: string }
+        plan: { type: string }
+        expiryDate: { type: string, format: date-time }
+        amountDue: { type: integer }
+        daysLeft: { type: integer }
+
+    AttendanceRecord:
+      type: object
+      required: [id, memberId, memberName, checkIn, source]
+      properties:
+        id: { type: string }
+        memberId: { type: string }
+        memberName: { type: string }
+        memberAvatar: { type: ["string", "null"] }
+        checkIn: { type: string, format: date-time }
+        checkOut: { type: ["string", "null"], format: date-time }
+        source: { type: string }
+
+    MarkAttendanceInput:
+      type: object
+      required: [memberId]
+      properties:
+        memberId: { type: string }
+        source: { type: ["string", "null"] }
+
+    Bill:
+      type: object
+      required: [id, memberId, memberName, type, amount, paid, balance, status, createdAt]
+      properties:
+        id: { type: string }
+        memberId: { type: string }
+        memberName: { type: string }
+        type: { type: string }
+        items:
+          type: array
+          items:
+            type: object
+            required: [name, amount]
+            properties:
+              name: { type: string }
+              amount: { type: integer }
+        amount: { type: integer }
+        paid: { type: integer }
+        balance: { type: integer }
+        status: { type: string }
+        paymentMode: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+
+    CreateBillInput:
+      type: object
+      required: [memberId, type, items]
+      properties:
+        memberId: { type: string }
+        type: { type: string }
+        items:
+          type: array
+          items:
+            type: object
+            required: [name, amount]
+            properties:
+              name: { type: string }
+              amount: { type: integer }
+        paid: { type: integer }
+        paymentMode: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+
+    UpdateBillInput:
+      type: object
+      properties:
+        paid: { type: integer }
+        status: { type: string }
+        paymentMode: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+
+    PosProduct:
+      type: object
+      required: [id, name, price, category, stock]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        price: { type: integer }
+        category: { type: string }
+        stock: { type: integer }
+        imageUrl: { type: ["string", "null"] }
+
+    PosSale:
+      type: object
+      required: [id, items, subtotal, tax, total, paymentMode, createdAt]
+      properties:
+        id: { type: string }
+        memberId: { type: ["string", "null"] }
+        memberName: { type: ["string", "null"] }
+        items:
+          type: array
+          items:
+            type: object
+            required: [productId, name, quantity, price]
+            properties:
+              productId: { type: string }
+              name: { type: string }
+              quantity: { type: integer }
+              price: { type: integer }
+        subtotal: { type: integer }
+        tax: { type: integer }
+        total: { type: integer }
+        paymentMode: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    CreatePosSaleInput:
+      type: object
+      required: [items, paymentMode]
+      properties:
+        memberId: { type: ["string", "null"] }
+        items:
+          type: array
+          items:
+            type: object
+            required: [productId, quantity]
+            properties:
+              productId: { type: string }
+              quantity: { type: integer }
+        paymentMode: { type: string }
+
+    SportsClient:
+      type: object
+      required: [id, memberName, sport, packageName, sessionsLeft, expiryDate, coach, level]
+      properties:
+        id: { type: string }
+        memberId: { type: ["string", "null"] }
+        memberName: { type: string }
+        sport: { type: string }
+        packageName: { type: string }
+        sessionsLeft: { type: integer }
+        expiryDate: { type: string, format: date-time }
+        coach: { type: string }
+        level: { type: string }
+
+    SportsPackage:
+      type: object
+      required: [id, name, sport, sessions, price, durationDays]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        sport: { type: string }
+        sessions: { type: integer }
+        price: { type: integer }
+        durationDays: { type: integer }
+
+    SportsBill:
+      type: object
+      required: [id, memberName, sport, packageName, amount, status, createdAt]
+      properties:
+        id: { type: string }
+        memberId: { type: ["string", "null"] }
+        memberName: { type: string }
+        sport: { type: string }
+        packageName: { type: string }
+        amount: { type: integer }
+        status: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    SportsReport:
+      type: object
+      required: [totalRevenue, totalClients, sessionsCompleted, bySport]
+      properties:
+        totalRevenue: { type: integer }
+        totalClients: { type: integer }
+        sessionsCompleted: { type: integer }
+        bySport:
+          type: array
+          items:
+            type: object
+            required: [sport, clients, revenue]
+            properties:
+              sport: { type: string }
+              clients: { type: integer }
+              revenue: { type: integer }
+
+    BodyAnalysis:
+      type: object
+      required: [id, memberId, recordedAt, weightKg, bodyFatPct]
+      properties:
+        id: { type: string }
+        memberId: { type: string }
+        recordedAt: { type: string, format: date-time }
+        weightKg: { type: number }
+        bodyFatPct: { type: number }
+        muscleKg: { type: ["number", "null"] }
+        bmi: { type: ["number", "null"] }
+        notes: { type: ["string", "null"] }
+
+    CreateBodyAnalysisInput:
+      type: object
+      required: [weightKg, bodyFatPct]
+      properties:
+        weightKg: { type: number }
+        bodyFatPct: { type: number }
+        muscleKg: { type: ["number", "null"] }
+        bmi: { type: ["number", "null"] }
+        notes: { type: ["string", "null"] }
+
+    MemberNote:
+      type: object
+      required: [id, memberId, body, author, createdAt]
+      properties:
+        id: { type: string }
+        memberId: { type: string }
+        body: { type: string }
+        author: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    CreateMemberNoteInput:
+      type: object
+      required: [body]
+      properties:
+        body: { type: string }
+        author: { type: ["string", "null"] }
+
+    MemberDocument:
+      type: object
+      required: [id, memberId, name, type, status, uploadedBy, uploadedAt]
+      properties:
+        id: { type: string }
+        memberId: { type: string }
+        name: { type: string }
+        type: { type: string }
+        status: { type: string }
+        uploadedBy: { type: string }
+        uploadedAt: { type: string, format: date-time }
+        note: { type: ["string", "null"] }
+
+    WorkoutPlan:
+      type: object
+      required: [id, memberId, name, weeks, days, trainerNote, active]
+      properties:
+        id: { type: string }
+        memberId: { type: string }
+        name: { type: string }
+        weeks: { type: string }
+        active: { type: boolean }
+        trainerNote: { type: string }
+        days:
+          type: array
+          items:
+            type: object
+            required: [day, exercises]
+            properties:
+              day: { type: string }
+              exercises:
+                type: array
+                items:
+                  type: object
+                  required: [name, setsReps]
+                  properties:
+                    name: { type: string }
+                    setsReps: { type: string }
+
+    NutritionPlan:
+      type: object
+      required: [id, memberId, name, calories, active, macros, meals]
+      properties:
+        id: { type: string }
+        memberId: { type: string }
+        name: { type: string }
+        calories: { type: integer }
+        active: { type: boolean }
+        macros:
+          type: object
+          required: [protein, carbs, fats]
+          properties:
+            protein: { type: string }
+            carbs: { type: string }
+            fats: { type: string }
+        meals:
+          type: array
+          items:
+            type: object
+            required: [name, time, kcal, description]
+            properties:
+              name: { type: string }
+              time: { type: string }
+              kcal: { type: integer }
+              description: { type: string }
+
+    Settings:
+      type: object
+      required: [gymName, address, phone, email, gst, invoicePrefix, taxPercent, theme, currency, logoUrl]
+      properties:
+        gymName: { type: string }
+        address: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        gst: { type: string }
+        invoicePrefix: { type: string }
+        taxPercent: { type: integer }
+        theme: { type: string }
+        currency: { type: string }
+        logoUrl: { type: string }
+
+    UpdateSettingsInput:
+      type: object
+      properties:
+        gymName: { type: string }
+        address: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        gst: { type: string }
+        invoicePrefix: { type: string }
+        taxPercent: { type: integer }
+        theme: { type: string }
+        currency: { type: string }
+        logoUrl: { type: string }

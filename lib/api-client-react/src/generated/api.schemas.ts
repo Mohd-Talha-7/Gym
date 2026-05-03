@@ -8,3 +8,482 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface DashboardStats {
+  totalMembers: number;
+  activeMembers: number;
+  expiredMembers: number;
+  pendingPayments: number;
+  totalChange: number;
+  activeChange: number;
+  expiredChange: number;
+  pendingChange: number;
+}
+
+export type AttendanceAnalyticsDaysItem = {
+  label: string;
+  count: number;
+  percent: number;
+};
+
+export interface AttendanceAnalytics {
+  days: AttendanceAnalyticsDaysItem[];
+}
+
+export interface ScheduleItem {
+  id: string;
+  trainer: string;
+  status: string;
+  time: string;
+  avatarUrl: string;
+}
+
+export interface CollectionProgress {
+  percent: number;
+  collected: number;
+  target: number;
+}
+
+export type RevenueSummaryMonthlyItem = {
+  month: string;
+  value: number;
+};
+
+export interface RevenueSummary {
+  revenue: number;
+  growth: number;
+  monthly: RevenueSummaryMonthlyItem[];
+}
+
+export interface Member {
+  id: string;
+  name: string;
+  phone: string;
+  /** @nullable */
+  email?: string | null;
+  status: string;
+  plan: string;
+  joinDate: string;
+  expiryDate: string;
+  gender: string;
+  /** @nullable */
+  bloodGroup?: string | null;
+  /** @nullable */
+  dob?: string | null;
+  /** @nullable */
+  address?: string | null;
+  avatarUrl: string;
+  balanceDue: number;
+  /** @nullable */
+  medicalHistory?: string | null;
+  /** @nullable */
+  emergencyContact?: string | null;
+}
+
+export interface CreateMemberInput {
+  name: string;
+  phone: string;
+  /** @nullable */
+  email?: string | null;
+  gender: string;
+  /** @nullable */
+  bloodGroup?: string | null;
+  /** @nullable */
+  dob?: string | null;
+  /** @nullable */
+  address?: string | null;
+  plan: string;
+  /** @nullable */
+  medicalHistory?: string | null;
+  /** @nullable */
+  emergencyContact?: string | null;
+}
+
+export interface UpdateMemberInput {
+  name?: string;
+  phone?: string;
+  /** @nullable */
+  email?: string | null;
+  gender?: string;
+  /** @nullable */
+  bloodGroup?: string | null;
+  /** @nullable */
+  dob?: string | null;
+  /** @nullable */
+  address?: string | null;
+  plan?: string;
+  status?: string;
+  expiryDate?: string;
+  /** @nullable */
+  medicalHistory?: string | null;
+  /** @nullable */
+  emergencyContact?: string | null;
+}
+
+export interface Celebration {
+  id: string;
+  name: string;
+  type: string;
+  date: string;
+  phone: string;
+  avatarUrl: string;
+}
+
+export interface Inquiry {
+  id: string;
+  name: string;
+  phone: string;
+  /** @nullable */
+  email?: string | null;
+  interest: string;
+  source: string;
+  status: string;
+  inquiryDate: string;
+  assignedTo: string;
+  /** @nullable */
+  notes?: string | null;
+}
+
+export interface CreateInquiryInput {
+  name: string;
+  phone: string;
+  /** @nullable */
+  email?: string | null;
+  interest: string;
+  source: string;
+  /** @nullable */
+  assignedTo?: string | null;
+  /** @nullable */
+  notes?: string | null;
+}
+
+export interface UpdateInquiryInput {
+  name?: string;
+  phone?: string;
+  /** @nullable */
+  email?: string | null;
+  interest?: string;
+  source?: string;
+  status?: string;
+  assignedTo?: string;
+  /** @nullable */
+  notes?: string | null;
+}
+
+export interface FollowUp {
+  id: string;
+  /** @nullable */
+  memberId: string | null;
+  memberName: string;
+  type: string;
+  priority: string;
+  scheduledFor: string;
+  status: string;
+  lastComment: string;
+  phone: string;
+}
+
+export interface CreateFollowUpInput {
+  /** @nullable */
+  memberId?: string | null;
+  memberName: string;
+  type: string;
+  priority: string;
+  scheduledFor: string;
+  /** @nullable */
+  lastComment?: string | null;
+  phone: string;
+}
+
+export interface UpdateFollowUpInput {
+  type?: string;
+  priority?: string;
+  scheduledFor?: string;
+  status?: string;
+  lastComment?: string;
+}
+
+export interface Renewal {
+  memberId: string;
+  memberName: string;
+  phone: string;
+  plan: string;
+  expiryDate: string;
+  amountDue: number;
+  daysLeft: number;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  memberId: string;
+  memberName: string;
+  /** @nullable */
+  memberAvatar?: string | null;
+  checkIn: string;
+  /** @nullable */
+  checkOut?: string | null;
+  source: string;
+}
+
+export interface MarkAttendanceInput {
+  memberId: string;
+  /** @nullable */
+  source?: string | null;
+}
+
+export type BillItemsItem = {
+  name: string;
+  amount: number;
+};
+
+export interface Bill {
+  id: string;
+  memberId: string;
+  memberName: string;
+  type: string;
+  items?: BillItemsItem[];
+  amount: number;
+  paid: number;
+  balance: number;
+  status: string;
+  /** @nullable */
+  paymentMode?: string | null;
+  /** @nullable */
+  notes?: string | null;
+  createdAt: string;
+}
+
+export type CreateBillInputItemsItem = {
+  name: string;
+  amount: number;
+};
+
+export interface CreateBillInput {
+  memberId: string;
+  type: string;
+  items: CreateBillInputItemsItem[];
+  paid?: number;
+  /** @nullable */
+  paymentMode?: string | null;
+  /** @nullable */
+  notes?: string | null;
+}
+
+export interface UpdateBillInput {
+  paid?: number;
+  status?: string;
+  /** @nullable */
+  paymentMode?: string | null;
+  /** @nullable */
+  notes?: string | null;
+}
+
+export interface PosProduct {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  stock: number;
+  /** @nullable */
+  imageUrl?: string | null;
+}
+
+export type PosSaleItemsItem = {
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
+};
+
+export interface PosSale {
+  id: string;
+  /** @nullable */
+  memberId?: string | null;
+  /** @nullable */
+  memberName?: string | null;
+  items: PosSaleItemsItem[];
+  subtotal: number;
+  tax: number;
+  total: number;
+  paymentMode: string;
+  createdAt: string;
+}
+
+export type CreatePosSaleInputItemsItem = {
+  productId: string;
+  quantity: number;
+};
+
+export interface CreatePosSaleInput {
+  /** @nullable */
+  memberId?: string | null;
+  items: CreatePosSaleInputItemsItem[];
+  paymentMode: string;
+}
+
+export interface SportsClient {
+  id: string;
+  /** @nullable */
+  memberId?: string | null;
+  memberName: string;
+  sport: string;
+  packageName: string;
+  sessionsLeft: number;
+  expiryDate: string;
+  coach: string;
+  level: string;
+}
+
+export interface SportsPackage {
+  id: string;
+  name: string;
+  sport: string;
+  sessions: number;
+  price: number;
+  durationDays: number;
+}
+
+export interface SportsBill {
+  id: string;
+  /** @nullable */
+  memberId?: string | null;
+  memberName: string;
+  sport: string;
+  packageName: string;
+  amount: number;
+  status: string;
+  createdAt: string;
+}
+
+export type SportsReportBySportItem = {
+  sport: string;
+  clients: number;
+  revenue: number;
+};
+
+export interface SportsReport {
+  totalRevenue: number;
+  totalClients: number;
+  sessionsCompleted: number;
+  bySport: SportsReportBySportItem[];
+}
+
+export interface BodyAnalysis {
+  id: string;
+  memberId: string;
+  recordedAt: string;
+  weightKg: number;
+  bodyFatPct: number;
+  /** @nullable */
+  muscleKg?: number | null;
+  /** @nullable */
+  bmi?: number | null;
+  /** @nullable */
+  notes?: string | null;
+}
+
+export interface CreateBodyAnalysisInput {
+  weightKg: number;
+  bodyFatPct: number;
+  /** @nullable */
+  muscleKg?: number | null;
+  /** @nullable */
+  bmi?: number | null;
+  /** @nullable */
+  notes?: string | null;
+}
+
+export interface MemberNote {
+  id: string;
+  memberId: string;
+  body: string;
+  author: string;
+  createdAt: string;
+}
+
+export interface CreateMemberNoteInput {
+  body: string;
+  /** @nullable */
+  author?: string | null;
+}
+
+export interface MemberDocument {
+  id: string;
+  memberId: string;
+  name: string;
+  type: string;
+  status: string;
+  uploadedBy: string;
+  uploadedAt: string;
+  /** @nullable */
+  note?: string | null;
+}
+
+export type WorkoutPlanDaysItemExercisesItem = {
+  name: string;
+  setsReps: string;
+};
+
+export type WorkoutPlanDaysItem = {
+  day: string;
+  exercises: WorkoutPlanDaysItemExercisesItem[];
+};
+
+export interface WorkoutPlan {
+  id: string;
+  memberId: string;
+  name: string;
+  weeks: string;
+  active: boolean;
+  trainerNote: string;
+  days: WorkoutPlanDaysItem[];
+}
+
+export type NutritionPlanMacros = {
+  protein: string;
+  carbs: string;
+  fats: string;
+};
+
+export type NutritionPlanMealsItem = {
+  name: string;
+  time: string;
+  kcal: number;
+  description: string;
+};
+
+export interface NutritionPlan {
+  id: string;
+  memberId: string;
+  name: string;
+  calories: number;
+  active: boolean;
+  macros: NutritionPlanMacros;
+  meals: NutritionPlanMealsItem[];
+}
+
+export interface Settings {
+  gymName: string;
+  address: string;
+  phone: string;
+  email: string;
+  gst: string;
+  invoicePrefix: string;
+  taxPercent: number;
+  theme: string;
+  currency: string;
+  logoUrl: string;
+}
+
+export interface UpdateSettingsInput {
+  gymName?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  gst?: string;
+  invoicePrefix?: string;
+  taxPercent?: number;
+  theme?: string;
+  currency?: string;
+  logoUrl?: string;
+}

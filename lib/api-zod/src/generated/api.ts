@@ -8,9 +8,733 @@
 import * as zod from "zod";
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
+});
+
+/**
+ * @summary Dashboard summary statistics
+ */
+export const GetDashboardStatsResponse = zod.object({
+  totalMembers: zod.number(),
+  activeMembers: zod.number(),
+  expiredMembers: zod.number(),
+  pendingPayments: zod.number(),
+  totalChange: zod.number(),
+  activeChange: zod.number(),
+  expiredChange: zod.number(),
+  pendingChange: zod.number(),
+});
+
+export const GetAttendanceAnalyticsResponse = zod.object({
+  days: zod.array(
+    zod.object({
+      label: zod.string(),
+      count: zod.number(),
+      percent: zod.number(),
+    }),
+  ),
+});
+
+export const GetTodayScheduleResponseItem = zod.object({
+  id: zod.string(),
+  trainer: zod.string(),
+  status: zod.string(),
+  time: zod.string(),
+  avatarUrl: zod.string(),
+});
+export const GetTodayScheduleResponse = zod.array(GetTodayScheduleResponseItem);
+
+export const GetCollectionProgressResponse = zod.object({
+  percent: zod.number(),
+  collected: zod.number(),
+  target: zod.number(),
+});
+
+export const GetRevenueResponse = zod.object({
+  revenue: zod.number(),
+  growth: zod.number(),
+  monthly: zod.array(
+    zod.object({
+      month: zod.string(),
+      value: zod.number(),
+    }),
+  ),
+});
+
+export const ListMembersResponseItem = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  status: zod.string(),
+  plan: zod.string(),
+  joinDate: zod.coerce.date(),
+  expiryDate: zod.coerce.date(),
+  gender: zod.string(),
+  bloodGroup: zod.string().nullish(),
+  dob: zod.coerce.date().nullish(),
+  address: zod.string().nullish(),
+  avatarUrl: zod.string(),
+  balanceDue: zod.number(),
+  medicalHistory: zod.string().nullish(),
+  emergencyContact: zod.string().nullish(),
+});
+export const ListMembersResponse = zod.array(ListMembersResponseItem);
+
+export const CreateMemberBody = zod.object({
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  gender: zod.string(),
+  bloodGroup: zod.string().nullish(),
+  dob: zod.coerce.date().nullish(),
+  address: zod.string().nullish(),
+  plan: zod.string(),
+  medicalHistory: zod.string().nullish(),
+  emergencyContact: zod.string().nullish(),
+});
+
+export const ListInconsistentMembersResponseItem = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  status: zod.string(),
+  plan: zod.string(),
+  joinDate: zod.coerce.date(),
+  expiryDate: zod.coerce.date(),
+  gender: zod.string(),
+  bloodGroup: zod.string().nullish(),
+  dob: zod.coerce.date().nullish(),
+  address: zod.string().nullish(),
+  avatarUrl: zod.string(),
+  balanceDue: zod.number(),
+  medicalHistory: zod.string().nullish(),
+  emergencyContact: zod.string().nullish(),
+});
+export const ListInconsistentMembersResponse = zod.array(
+  ListInconsistentMembersResponseItem,
+);
+
+export const ListCelebrationsResponseItem = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  type: zod.string(),
+  date: zod.string(),
+  phone: zod.string(),
+  avatarUrl: zod.string(),
+});
+export const ListCelebrationsResponse = zod.array(ListCelebrationsResponseItem);
+
+export const GetMemberParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetMemberResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  status: zod.string(),
+  plan: zod.string(),
+  joinDate: zod.coerce.date(),
+  expiryDate: zod.coerce.date(),
+  gender: zod.string(),
+  bloodGroup: zod.string().nullish(),
+  dob: zod.coerce.date().nullish(),
+  address: zod.string().nullish(),
+  avatarUrl: zod.string(),
+  balanceDue: zod.number(),
+  medicalHistory: zod.string().nullish(),
+  emergencyContact: zod.string().nullish(),
+});
+
+export const UpdateMemberParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateMemberBody = zod.object({
+  name: zod.string().optional(),
+  phone: zod.string().optional(),
+  email: zod.string().nullish(),
+  gender: zod.string().optional(),
+  bloodGroup: zod.string().nullish(),
+  dob: zod.coerce.date().nullish(),
+  address: zod.string().nullish(),
+  plan: zod.string().optional(),
+  status: zod.string().optional(),
+  expiryDate: zod.coerce.date().optional(),
+  medicalHistory: zod.string().nullish(),
+  emergencyContact: zod.string().nullish(),
+});
+
+export const UpdateMemberResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  status: zod.string(),
+  plan: zod.string(),
+  joinDate: zod.coerce.date(),
+  expiryDate: zod.coerce.date(),
+  gender: zod.string(),
+  bloodGroup: zod.string().nullish(),
+  dob: zod.coerce.date().nullish(),
+  address: zod.string().nullish(),
+  avatarUrl: zod.string(),
+  balanceDue: zod.number(),
+  medicalHistory: zod.string().nullish(),
+  emergencyContact: zod.string().nullish(),
+});
+
+export const DeleteMemberParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListMemberBillsParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListMemberBillsResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string(),
+  memberName: zod.string(),
+  type: zod.string(),
+  items: zod
+    .array(
+      zod.object({
+        name: zod.string(),
+        amount: zod.number(),
+      }),
+    )
+    .optional(),
+  amount: zod.number(),
+  paid: zod.number(),
+  balance: zod.number(),
+  status: zod.string(),
+  paymentMode: zod.string().nullish(),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListMemberBillsResponse = zod.array(ListMemberBillsResponseItem);
+
+export const ListMemberAttendanceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListMemberAttendanceResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string(),
+  memberName: zod.string(),
+  memberAvatar: zod.string().nullish(),
+  checkIn: zod.coerce.date(),
+  checkOut: zod.coerce.date().nullish(),
+  source: zod.string(),
+});
+export const ListMemberAttendanceResponse = zod.array(
+  ListMemberAttendanceResponseItem,
+);
+
+export const ListMemberBodyAnalysisParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListMemberBodyAnalysisResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string(),
+  recordedAt: zod.coerce.date(),
+  weightKg: zod.number(),
+  bodyFatPct: zod.number(),
+  muscleKg: zod.number().nullish(),
+  bmi: zod.number().nullish(),
+  notes: zod.string().nullish(),
+});
+export const ListMemberBodyAnalysisResponse = zod.array(
+  ListMemberBodyAnalysisResponseItem,
+);
+
+export const CreateMemberBodyAnalysisParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const CreateMemberBodyAnalysisBody = zod.object({
+  weightKg: zod.number(),
+  bodyFatPct: zod.number(),
+  muscleKg: zod.number().nullish(),
+  bmi: zod.number().nullish(),
+  notes: zod.string().nullish(),
+});
+
+export const ListMemberNotesParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListMemberNotesResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string(),
+  body: zod.string(),
+  author: zod.string(),
+  createdAt: zod.coerce.date(),
+});
+export const ListMemberNotesResponse = zod.array(ListMemberNotesResponseItem);
+
+export const CreateMemberNoteParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const CreateMemberNoteBody = zod.object({
+  body: zod.string(),
+  author: zod.string().nullish(),
+});
+
+export const ListMemberDocumentsParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListMemberDocumentsResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string(),
+  name: zod.string(),
+  type: zod.string(),
+  status: zod.string(),
+  uploadedBy: zod.string(),
+  uploadedAt: zod.coerce.date(),
+  note: zod.string().nullish(),
+});
+export const ListMemberDocumentsResponse = zod.array(
+  ListMemberDocumentsResponseItem,
+);
+
+export const ListMemberWorkoutPlansParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListMemberWorkoutPlansResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string(),
+  name: zod.string(),
+  weeks: zod.string(),
+  active: zod.boolean(),
+  trainerNote: zod.string(),
+  days: zod.array(
+    zod.object({
+      day: zod.string(),
+      exercises: zod.array(
+        zod.object({
+          name: zod.string(),
+          setsReps: zod.string(),
+        }),
+      ),
+    }),
+  ),
+});
+export const ListMemberWorkoutPlansResponse = zod.array(
+  ListMemberWorkoutPlansResponseItem,
+);
+
+export const ListMemberNutritionPlansParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListMemberNutritionPlansResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string(),
+  name: zod.string(),
+  calories: zod.number(),
+  active: zod.boolean(),
+  macros: zod.object({
+    protein: zod.string(),
+    carbs: zod.string(),
+    fats: zod.string(),
+  }),
+  meals: zod.array(
+    zod.object({
+      name: zod.string(),
+      time: zod.string(),
+      kcal: zod.number(),
+      description: zod.string(),
+    }),
+  ),
+});
+export const ListMemberNutritionPlansResponse = zod.array(
+  ListMemberNutritionPlansResponseItem,
+);
+
+export const ListInquiriesResponseItem = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  interest: zod.string(),
+  source: zod.string(),
+  status: zod.string(),
+  inquiryDate: zod.coerce.date(),
+  assignedTo: zod.string(),
+  notes: zod.string().nullish(),
+});
+export const ListInquiriesResponse = zod.array(ListInquiriesResponseItem);
+
+export const CreateInquiryBody = zod.object({
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  interest: zod.string(),
+  source: zod.string(),
+  assignedTo: zod.string().nullish(),
+  notes: zod.string().nullish(),
+});
+
+export const GetInquiryParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetInquiryResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  interest: zod.string(),
+  source: zod.string(),
+  status: zod.string(),
+  inquiryDate: zod.coerce.date(),
+  assignedTo: zod.string(),
+  notes: zod.string().nullish(),
+});
+
+export const UpdateInquiryParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateInquiryBody = zod.object({
+  name: zod.string().optional(),
+  phone: zod.string().optional(),
+  email: zod.string().nullish(),
+  interest: zod.string().optional(),
+  source: zod.string().optional(),
+  status: zod.string().optional(),
+  assignedTo: zod.string().optional(),
+  notes: zod.string().nullish(),
+});
+
+export const UpdateInquiryResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  interest: zod.string(),
+  source: zod.string(),
+  status: zod.string(),
+  inquiryDate: zod.coerce.date(),
+  assignedTo: zod.string(),
+  notes: zod.string().nullish(),
+});
+
+export const DeleteInquiryParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ConvertInquiryParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ConvertInquiryResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  phone: zod.string(),
+  email: zod.string().nullish(),
+  status: zod.string(),
+  plan: zod.string(),
+  joinDate: zod.coerce.date(),
+  expiryDate: zod.coerce.date(),
+  gender: zod.string(),
+  bloodGroup: zod.string().nullish(),
+  dob: zod.coerce.date().nullish(),
+  address: zod.string().nullish(),
+  avatarUrl: zod.string(),
+  balanceDue: zod.number(),
+  medicalHistory: zod.string().nullish(),
+  emergencyContact: zod.string().nullish(),
+});
+
+export const ListFollowUpsResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string().nullable(),
+  memberName: zod.string(),
+  type: zod.string(),
+  priority: zod.string(),
+  scheduledFor: zod.coerce.date(),
+  status: zod.string(),
+  lastComment: zod.string(),
+  phone: zod.string(),
+});
+export const ListFollowUpsResponse = zod.array(ListFollowUpsResponseItem);
+
+export const CreateFollowUpBody = zod.object({
+  memberId: zod.string().nullish(),
+  memberName: zod.string(),
+  type: zod.string(),
+  priority: zod.string(),
+  scheduledFor: zod.coerce.date(),
+  lastComment: zod.string().nullish(),
+  phone: zod.string(),
+});
+
+export const UpdateFollowUpParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateFollowUpBody = zod.object({
+  type: zod.string().optional(),
+  priority: zod.string().optional(),
+  scheduledFor: zod.coerce.date().optional(),
+  status: zod.string().optional(),
+  lastComment: zod.string().optional(),
+});
+
+export const UpdateFollowUpResponse = zod.object({
+  id: zod.string(),
+  memberId: zod.string().nullable(),
+  memberName: zod.string(),
+  type: zod.string(),
+  priority: zod.string(),
+  scheduledFor: zod.coerce.date(),
+  status: zod.string(),
+  lastComment: zod.string(),
+  phone: zod.string(),
+});
+
+export const DeleteFollowUpParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListRenewalsResponseItem = zod.object({
+  memberId: zod.string(),
+  memberName: zod.string(),
+  phone: zod.string(),
+  plan: zod.string(),
+  expiryDate: zod.coerce.date(),
+  amountDue: zod.number(),
+  daysLeft: zod.number(),
+});
+export const ListRenewalsResponse = zod.array(ListRenewalsResponseItem);
+
+export const ListAttendanceResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string(),
+  memberName: zod.string(),
+  memberAvatar: zod.string().nullish(),
+  checkIn: zod.coerce.date(),
+  checkOut: zod.coerce.date().nullish(),
+  source: zod.string(),
+});
+export const ListAttendanceResponse = zod.array(ListAttendanceResponseItem);
+
+export const MarkAttendanceBody = zod.object({
+  memberId: zod.string(),
+  source: zod.string().nullish(),
+});
+
+export const ListBillsResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string(),
+  memberName: zod.string(),
+  type: zod.string(),
+  items: zod
+    .array(
+      zod.object({
+        name: zod.string(),
+        amount: zod.number(),
+      }),
+    )
+    .optional(),
+  amount: zod.number(),
+  paid: zod.number(),
+  balance: zod.number(),
+  status: zod.string(),
+  paymentMode: zod.string().nullish(),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListBillsResponse = zod.array(ListBillsResponseItem);
+
+export const CreateBillBody = zod.object({
+  memberId: zod.string(),
+  type: zod.string(),
+  items: zod.array(
+    zod.object({
+      name: zod.string(),
+      amount: zod.number(),
+    }),
+  ),
+  paid: zod.number().optional(),
+  paymentMode: zod.string().nullish(),
+  notes: zod.string().nullish(),
+});
+
+export const UpdateBillParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateBillBody = zod.object({
+  paid: zod.number().optional(),
+  status: zod.string().optional(),
+  paymentMode: zod.string().nullish(),
+  notes: zod.string().nullish(),
+});
+
+export const UpdateBillResponse = zod.object({
+  id: zod.string(),
+  memberId: zod.string(),
+  memberName: zod.string(),
+  type: zod.string(),
+  items: zod
+    .array(
+      zod.object({
+        name: zod.string(),
+        amount: zod.number(),
+      }),
+    )
+    .optional(),
+  amount: zod.number(),
+  paid: zod.number(),
+  balance: zod.number(),
+  status: zod.string(),
+  paymentMode: zod.string().nullish(),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+export const ListPosProductsResponseItem = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  price: zod.number(),
+  category: zod.string(),
+  stock: zod.number(),
+  imageUrl: zod.string().nullish(),
+});
+export const ListPosProductsResponse = zod.array(ListPosProductsResponseItem);
+
+export const ListPosSalesResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string().nullish(),
+  memberName: zod.string().nullish(),
+  items: zod.array(
+    zod.object({
+      productId: zod.string(),
+      name: zod.string(),
+      quantity: zod.number(),
+      price: zod.number(),
+    }),
+  ),
+  subtotal: zod.number(),
+  tax: zod.number(),
+  total: zod.number(),
+  paymentMode: zod.string(),
+  createdAt: zod.coerce.date(),
+});
+export const ListPosSalesResponse = zod.array(ListPosSalesResponseItem);
+
+export const CreatePosSaleBody = zod.object({
+  memberId: zod.string().nullish(),
+  items: zod.array(
+    zod.object({
+      productId: zod.string(),
+      quantity: zod.number(),
+    }),
+  ),
+  paymentMode: zod.string(),
+});
+
+export const ListSportsClientsResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string().nullish(),
+  memberName: zod.string(),
+  sport: zod.string(),
+  packageName: zod.string(),
+  sessionsLeft: zod.number(),
+  expiryDate: zod.coerce.date(),
+  coach: zod.string(),
+  level: zod.string(),
+});
+export const ListSportsClientsResponse = zod.array(
+  ListSportsClientsResponseItem,
+);
+
+export const ListSportsPackagesResponseItem = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  sport: zod.string(),
+  sessions: zod.number(),
+  price: zod.number(),
+  durationDays: zod.number(),
+});
+export const ListSportsPackagesResponse = zod.array(
+  ListSportsPackagesResponseItem,
+);
+
+export const ListSportsBillsResponseItem = zod.object({
+  id: zod.string(),
+  memberId: zod.string().nullish(),
+  memberName: zod.string(),
+  sport: zod.string(),
+  packageName: zod.string(),
+  amount: zod.number(),
+  status: zod.string(),
+  createdAt: zod.coerce.date(),
+});
+export const ListSportsBillsResponse = zod.array(ListSportsBillsResponseItem);
+
+export const GetSportsReportResponse = zod.object({
+  totalRevenue: zod.number(),
+  totalClients: zod.number(),
+  sessionsCompleted: zod.number(),
+  bySport: zod.array(
+    zod.object({
+      sport: zod.string(),
+      clients: zod.number(),
+      revenue: zod.number(),
+    }),
+  ),
+});
+
+export const GetSettingsResponse = zod.object({
+  gymName: zod.string(),
+  address: zod.string(),
+  phone: zod.string(),
+  email: zod.string(),
+  gst: zod.string(),
+  invoicePrefix: zod.string(),
+  taxPercent: zod.number(),
+  theme: zod.string(),
+  currency: zod.string(),
+  logoUrl: zod.string(),
+});
+
+export const UpdateSettingsBody = zod.object({
+  gymName: zod.string().optional(),
+  address: zod.string().optional(),
+  phone: zod.string().optional(),
+  email: zod.string().optional(),
+  gst: zod.string().optional(),
+  invoicePrefix: zod.string().optional(),
+  taxPercent: zod.number().optional(),
+  theme: zod.string().optional(),
+  currency: zod.string().optional(),
+  logoUrl: zod.string().optional(),
+});
+
+export const UpdateSettingsResponse = zod.object({
+  gymName: zod.string(),
+  address: zod.string(),
+  phone: zod.string(),
+  email: zod.string(),
+  gst: zod.string(),
+  invoicePrefix: zod.string(),
+  taxPercent: zod.number(),
+  theme: zod.string(),
+  currency: zod.string(),
+  logoUrl: zod.string(),
 });

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useGetDashboardStats } from '@workspace/api-client-react';
 
 import FollowUps from '@/components/FollowUps';
 import UpcomingRenewals from '@/components/UpcomingRenewals';
@@ -35,6 +36,7 @@ function Dashboard() {
   const [theme, setTheme] = useState('default');
   const [isSportsOpen, setIsSportsOpen] = useState(false);
   const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
+  const { data: stats } = useGetDashboardStats();
 
   return (
     <div className={`absolute inset-0 h-screen w-full overflow-hidden bg-theme-bg-main ${theme === 'default' ? '' : `theme-${theme}`}`}>
@@ -306,26 +308,26 @@ function Dashboard() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                   <div className="bg-gradient-to-br from-theme-card-grad-from to-theme-card-grad-to rounded-[20px] p-4 text-theme-card-grad-text shadow-sm relative overflow-hidden">
                     <h3 className="font-medium mb-1 text-sm opacity-90">Total Members</h3>
-                    <div className="text-3xl font-bold mb-1">47</div>
-                    <p className="text-[10px] opacity-75">5 Increased from last month</p>
+                    <div className="text-3xl font-bold mb-1">{stats?.totalMembers ?? '—'}</div>
+                    <p className="text-[10px] opacity-75">{stats?.totalChange ?? 0} Increased from last month</p>
                     <ArrowUpRight className="absolute top-4 right-4 w-5 h-5 opacity-70" />
                   </div>
                   <div className="bg-theme-primary-light rounded-[20px] p-4 shadow-sm relative border border-theme-primary-light">
                     <h3 className="text-theme-primary-text font-medium mb-1 text-sm">Active Members</h3>
-                    <div className="text-3xl font-bold text-theme-primary-text mb-1">47</div>
-                    <p className="text-theme-primary-text opacity-70 text-[10px]">5 Increased from last month</p>
+                    <div className="text-3xl font-bold text-theme-primary-text mb-1">{stats?.activeMembers ?? '—'}</div>
+                    <p className="text-theme-primary-text opacity-70 text-[10px]">{stats?.activeChange ?? 0} Increased from last month</p>
                     <ArrowUpRight className="absolute top-4 right-4 w-5 h-5 text-theme-primary-main" />
                   </div>
                   <div className="bg-rose-50 rounded-[20px] p-4 shadow-sm relative border border-rose-100">
                     <h3 className="text-rose-800 font-medium mb-1 text-sm">Expired Members</h3>
-                    <div className="text-3xl font-bold text-rose-600 mb-1">13</div>
-                    <p className="text-rose-600/70 text-[10px]">3 Increased from last month</p>
+                    <div className="text-3xl font-bold text-rose-600 mb-1">{stats?.expiredMembers ?? '—'}</div>
+                    <p className="text-rose-600/70 text-[10px]">{stats?.expiredChange ?? 0} Increased from last month</p>
                     <ArrowUpRight className="absolute top-4 right-4 w-5 h-5 text-rose-400" />
                   </div>
                   <div className="bg-amber-50 rounded-[20px] p-4 shadow-sm relative border border-amber-100">
                     <h3 className="text-amber-800 font-medium mb-1 text-sm">Pending Payments</h3>
-                    <div className="text-3xl font-bold text-amber-500 mb-1">8</div>
-                    <p className="text-amber-600/70 text-[10px]">3 Increased from last month</p>
+                    <div className="text-3xl font-bold text-amber-500 mb-1">{stats?.pendingPayments ?? '—'}</div>
+                    <p className="text-amber-600/70 text-[10px]">{stats?.pendingChange ?? 0} Increased from last month</p>
                     <ArrowUpRight className="absolute top-4 right-4 w-5 h-5 text-amber-400" />
                   </div>
                 </div>
